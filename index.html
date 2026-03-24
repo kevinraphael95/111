@@ -1,526 +1,64 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="nuit">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nantes — Tableau de Bord Vivant</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --vert: #2ecc71;
-    --jaune: #f1c40f;
-    --rouge: #e74c3c;
-    --bleu: #3498db;
-    --noir: #0a0a0a;
-    --gris: #111;
-    --gris2: #1a1a1a;
-    --blanc: #f0ece4;
-    --accent: #ff6b35;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nantes — Tableau de Bord</title>
+  <meta name="description" content="Tableau de bord en temps réel de la ville de Nantes : météo, transports, qualité de l'air, vélos Bicloo, agenda culturel.">
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-  body {
-    background: var(--noir);
-    color: var(--blanc);
-    font-family: 'Space Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  <!-- Themes (chargés en premier, avant main.css) -->
+  <link rel="stylesheet" href="css/themes/nuit.css">
+  <link rel="stylesheet" href="css/themes/jour.css">
+  <link rel="stylesheet" href="css/themes/aube.css">
+  <link rel="stylesheet" href="css/themes/foret.css">
 
-  /* HERO */
-  .hero {
-    position: relative;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-bottom: 1px solid #222;
-  }
-
-  .hero-bg {
-    position: absolute; inset: 0;
-    background: 
-      radial-gradient(ellipse 80% 60% at 50% 110%, rgba(46,204,113,0.12) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 40% at 20% 50%, rgba(255,107,53,0.07) 0%, transparent 60%),
-      repeating-linear-gradient(0deg, transparent, transparent 39px, #1a1a1a 39px, #1a1a1a 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, #1a1a1a 39px, #1a1a1a 40px);
-  }
-
-  .hero-badge {
-    font-size: 0.65rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    padding: 6px 16px;
-    margin-bottom: 2rem;
-    animation: fadein 1s ease both;
-  }
-
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(4rem, 14vw, 11rem);
-    font-weight: 900;
-    line-height: 0.9;
-    text-align: center;
-    animation: fadein 1s 0.2s ease both;
-    background: linear-gradient(135deg, var(--blanc) 40%, var(--vert));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    margin-top: 1.5rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    color: #666;
-    animation: fadein 1s 0.4s ease both;
-  }
-
-  .live-dot {
-    display: inline-block;
-    width: 8px; height: 8px;
-    background: var(--vert);
-    border-radius: 50%;
-    margin-right: 8px;
-    animation: pulse 1.5s infinite;
-  }
-
-  .scroll-cue {
-    position: absolute;
-    bottom: 2rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    color: #444;
-    animation: bounce 2s infinite;
-  }
-
-  /* NAV */
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,10,10,0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid #222;
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-  }
-
-  nav a {
-    color: #555;
-    text-decoration: none;
-    padding: 1rem 1.5rem;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    border-right: 1px solid #1a1a1a;
-    white-space: nowrap;
-    transition: color 0.2s, background 0.2s;
-  }
-  nav a:hover { color: var(--blanc); background: #111; }
-
-  /* GRID SYSTÈME */
-  .section {
-    padding: 4rem 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-    border-bottom: 1px solid #1a1a1a;
-    padding-bottom: 1rem;
-  }
-
-  .section-num {
-    font-size: 0.6rem;
-    color: var(--accent);
-    letter-spacing: 0.2em;
-  }
-
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 700;
-  }
-
-  .section-source {
-    margin-left: auto;
-    font-size: 0.55rem;
-    color: #444;
-    letter-spacing: 0.15em;
-  }
-
-  /* CARDS */
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1px;
-    background: #1a1a1a;
-    border: 1px solid #1a1a1a;
-  }
-
-  .card {
-    background: var(--noir);
-    padding: 1.5rem;
-    transition: background 0.2s;
-  }
-  .card:hover { background: #0e0e0e; }
-
-  .card-label {
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
-    color: #555;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-
-  .card-val {
-    font-size: 1.8rem;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-
-  .card-sub {
-    font-size: 0.65rem;
-    color: #555;
-  }
-
-  /* METEO */
-  .meteo-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: #1a1a1a;
-    border: 1px solid #1a1a1a;
-  }
-
-  .meteo-main {
-    background: var(--noir);
-    padding: 2rem;
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .meteo-temp {
-    font-family: 'Playfair Display', serif;
-    font-size: 5rem;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .meteo-icon { font-size: 4rem; }
-
-  .meteo-detail {
-    background: var(--noir);
-    padding: 1.25rem 1.5rem;
-  }
-
-  /* TRANSPORTS */
-  .transport-list { display: flex; flex-direction: column; gap: 1px; background: #1a1a1a; border: 1px solid #1a1a1a; }
-
-  .transport-item {
-    background: var(--noir);
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .transport-badge {
-    min-width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    border-radius: 2px;
-  }
-
-  .badge-tram { background: var(--vert); color: #000; }
-  .badge-bus { background: var(--bleu); color: #fff; }
-  .badge-navibus { background: #0077b6; color: #fff; }
-  .badge-busway { background: #9b59b6; color: #fff; }
-  .badge-velo { background: var(--jaune); color: #000; }
-  .badge-bike { background: var(--accent); color: #fff; }
-
-  .transport-name { flex: 1; font-size: 0.8rem; }
-  .transport-status { font-size: 0.65rem; }
-  .status-ok { color: var(--vert); }
-  .status-warn { color: var(--jaune); }
-  .status-err { color: var(--rouge); }
-
-  /* QUALITÉ AIR */
-  .aqi-bar-wrap { margin-top: 1rem; }
-  .aqi-bar {
-    height: 8px;
-    border-radius: 0;
-    background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c);
-    position: relative;
-    margin-bottom: 0.5rem;
-  }
-  .aqi-cursor {
-    position: absolute;
-    top: -4px;
-    width: 4px;
-    height: 16px;
-    background: var(--blanc);
-    transition: left 1s ease;
-  }
-
-  /* MAP placeholder */
-  .map-frame {
-    width: 100%;
-    height: 400px;
-    border: 1px solid #1a1a1a;
-    background: #0a0a0a;
-    position: relative;
-    overflow: hidden;
-  }
-  .map-frame iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    opacity: 0.85;
-    filter: invert(0.85) hue-rotate(180deg);
-  }
-
-  /* VÉLO stations */
-  .velo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1px;
-    background: #1a1a1a;
-    border: 1px solid #1a1a1a;
-  }
-
-  .velo-card {
-    background: var(--noir);
-    padding: 1.25rem;
-  }
-
-  .velo-name { font-size: 0.7rem; margin-bottom: 0.5rem; color: #aaa; }
-
-  .velo-bar-wrap { display: flex; gap: 4px; align-items: center; }
-  .velo-bar-outer { flex: 1; height: 6px; background: #1a1a1a; }
-  .velo-bar-inner { height: 100%; background: var(--jaune); transition: width 1s ease; }
-  .velo-count { font-size: 0.7rem; min-width: 24px; text-align: right; }
-
-  /* AGENDA */
-  .event-list { display: flex; flex-direction: column; gap: 1px; background: #1a1a1a; border: 1px solid #1a1a1a; }
-  .event-item {
-    background: var(--noir);
-    padding: 1.25rem 1.5rem;
-    display: grid;
-    grid-template-columns: 80px 1fr auto;
-    gap: 1rem;
-    align-items: start;
-  }
-  .event-date { font-size: 0.65rem; color: var(--accent); line-height: 1.4; }
-  .event-title { font-size: 0.85rem; }
-  .event-cat {
-    font-size: 0.55rem;
-    letter-spacing: 0.15em;
-    padding: 3px 8px;
-    border: 1px solid #333;
-    color: #666;
-    white-space: nowrap;
-  }
-
-  /* STATS VILLE */
-  .big-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1px;
-    background: #1a1a1a;
-    border: 1px solid #1a1a1a;
-  }
-
-  .big-stat {
-    background: var(--noir);
-    padding: 2rem 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .big-stat::before {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transition: transform 0.5s ease;
-  }
-  .big-stat:hover::before { transform: scaleX(1); }
-
-  .big-stat-val {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-  }
-
-  .big-stat-label {
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    color: #555;
-    text-transform: uppercase;
-  }
-
-  /* TWITTER/social */
-  .info-block {
-    background: var(--gris2);
-    border: 1px solid #1e1e1e;
-    padding: 1.5rem;
-    font-size: 0.75rem;
-    line-height: 1.8;
-    color: #888;
-  }
-
-  .info-block a { color: var(--vert); text-decoration: none; }
-  .info-block a:hover { text-decoration: underline; }
-
-  /* FOOTER */
-  footer {
-    border-top: 1px solid #1a1a1a;
-    padding: 3rem 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 2rem;
-    font-size: 0.65rem;
-    color: #444;
-  }
-
-  .footer-col h4 {
-    color: #666;
-    margin-bottom: 0.75rem;
-    letter-spacing: 0.1em;
-    font-size: 0.65rem;
-  }
-
-  .footer-col a {
-    display: block;
-    color: #333;
-    text-decoration: none;
-    padding: 2px 0;
-    transition: color 0.2s;
-  }
-  .footer-col a:hover { color: var(--vert); }
-
-  /* LOADERS */
-  .loader {
-    display: inline-block;
-    width: 14px; height: 14px;
-    border: 2px solid #222;
-    border-top-color: var(--vert);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    vertical-align: middle;
-    margin-right: 6px;
-  }
-
-  .error-text { color: var(--rouge); font-size: 0.7rem; }
-
-  /* ANIMATIONS */
-  @keyframes fadein {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(8px); }
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .fade-in { animation: fadein 0.6s ease both; }
-
-  /* RESPONSIVE */
-  @media (max-width: 640px) {
-    .event-item { grid-template-columns: 60px 1fr; }
-    .event-cat { display: none; }
-    footer { grid-template-columns: 1fr; }
-    .meteo-main { flex-direction: column; gap: 1rem; }
-  }
-
-  /* Chip tag */
-  .tag {
-    display: inline-block;
-    font-size: 0.55rem;
-    letter-spacing: 0.1em;
-    padding: 2px 8px;
-    border: 1px solid;
-    border-radius: 0;
-    margin: 2px;
-  }
-  .tag-green { border-color: var(--vert); color: var(--vert); }
-  .tag-yellow { border-color: var(--jaune); color: var(--jaune); }
-  .tag-red { border-color: var(--rouge); color: var(--rouge); }
-
-  .two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: #1a1a1a;
-    border: 1px solid #1a1a1a;
-  }
-  .two-col-block { background: var(--noir); padding: 1.5rem; }
-
-  @media (max-width: 700px) {
-    .two-col { grid-template-columns: 1fr; }
-    .meteo-grid { grid-template-columns: 1fr; }
-  }
-</style>
+  <!-- Styles principaux -->
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 
-<!-- HERO -->
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-badge">Tableau de bord en temps réel</div>
-  <h1>NANTES</h1>
-  <p class="hero-sub"><span class="live-dot"></span>Données publiques en direct — Loire-Atlantique · France</p>
+  <h1 class="hero-title">NANTES</h1>
+  <p class="hero-sub">
+    <span class="live-dot"></span>
+    Données publiques · Loire-Atlantique · France
+  </p>
   <div class="scroll-cue">↓ EXPLORER</div>
 </section>
 
-<!-- NAV -->
-<nav>
-  <a href="#meteo">🌤 Météo</a>
-  <a href="#air">💨 Air</a>
-  <a href="#transports">🚊 Transports</a>
-  <a href="#velos">🚲 Vélos</a>
-  <a href="#agenda">📅 Agenda</a>
-  <a href="#ville">🏙 Ville</a>
-  <a href="#wiki">📖 Wikipedia</a>
-  <a href="#carte">🗺 Carte</a>
-  <a href="#apis">🔌 APIs</a>
+<!-- ══════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-links">
+    <a href="#meteo"><span class="nav-icon">🌤</span> Météo</a>
+    <a href="#air"><span class="nav-icon">💨</span> Air</a>
+    <a href="#transports"><span class="nav-icon">🚊</span> Transports</a>
+    <a href="#velos"><span class="nav-icon">🚲</span> Vélos</a>
+    <a href="#agenda"><span class="nav-icon">📅</span> Agenda</a>
+    <a href="#ville"><span class="nav-icon">🏙</span> Ville</a>
+    <a href="#wiki"><span class="nav-icon">📖</span> Wikipedia</a>
+    <a href="#astronomie"><span class="nav-icon">🌅</span> Soleil</a>
+    <a href="#carte"><span class="nav-icon">🗺</span> Carte</a>
+    <a href="#apis"><span class="nav-icon">🔌</span> APIs</a>
+  </div>
+  <div class="theme-switcher" id="theme-switcher">
+    <!-- injecté par theme.js -->
+  </div>
 </nav>
 
-<!-- ═══════════════ MÉTÉO ═══════════════ -->
+<!-- ══════════════════════════════════════
+     01 — MÉTÉO
+══════════════════════════════════════ -->
 <section class="section" id="meteo">
   <div class="section-header">
     <span class="section-num">01</span>
@@ -528,16 +66,17 @@
     <span class="section-source">SOURCE · open-meteo.com</span>
   </div>
 
-  <div class="meteo-grid" id="meteo-container">
+  <div class="meteo-grid" id="meteo-grid">
     <div class="meteo-main">
       <div class="meteo-icon" id="meteo-icon">⏳</div>
-      <div>
+      <div class="meteo-info">
         <div class="meteo-temp" id="meteo-temp">—°</div>
-        <div style="font-size:0.8rem;color:#666;margin-top:0.25rem" id="meteo-desc">Chargement…</div>
+        <div class="meteo-desc" id="meteo-desc">Chargement…</div>
+        <div class="meteo-time" id="meteo-time">—</div>
       </div>
-      <div style="margin-left:auto;text-align:right">
-        <div style="font-size:0.65rem;color:#555">Nantes · 47.22°N 1.55°W</div>
-        <div style="font-size:0.65rem;color:#555;margin-top:4px" id="meteo-time">—</div>
+      <div class="meteo-coords">
+        Nantes · 47.22°N 1.55°O<br>
+        Europe/Paris
       </div>
     </div>
     <div class="meteo-detail"><div class="card-label">Ressenti</div><div class="card-val" id="meteo-feel">—</div></div>
@@ -546,19 +85,23 @@
     <div class="meteo-detail"><div class="card-label">Précipitations</div><div class="card-val" id="meteo-precip">—</div></div>
     <div class="meteo-detail"><div class="card-label">Couverture nuageuse</div><div class="card-val" id="meteo-cloud">—</div></div>
     <div class="meteo-detail"><div class="card-label">Visibilité</div><div class="card-val" id="meteo-vis">—</div></div>
-    <div class="meteo-detail"><div class="card-label">UV Index</div><div class="card-val" id="meteo-uv">—</div></div>
+    <div class="meteo-detail"><div class="card-label">Indice UV</div><div class="card-val" id="meteo-uv">—</div></div>
   </div>
 
-  <!-- Prévisions 7j -->
+  <!-- Prévisions 7 jours -->
   <div style="margin-top:1px">
-    <div style="font-size:0.6rem;letter-spacing:0.2em;color:#444;padding:1rem 0 0.5rem;border-top:1px solid #1a1a1a;margin-top:0">PRÉVISIONS 7 JOURS</div>
+    <div style="font-size:0.52rem;letter-spacing:0.22em;color:var(--text-muted);padding:1rem 0 0.5rem;border-top:1px solid var(--border)">
+      PRÉVISIONS 7 JOURS
+    </div>
     <div class="cards" id="forecast-container">
-      <div class="card"><span class="loader"></span></div>
+      <div class="card"><span class="loader"></span> Chargement…</div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ QUALITÉ DE L'AIR ═══════════════ -->
+<!-- ══════════════════════════════════════
+     02 — QUALITÉ DE L'AIR
+══════════════════════════════════════ -->
 <section class="section" id="air">
   <div class="section-header">
     <span class="section-num">02</span>
@@ -567,30 +110,31 @@
   </div>
 
   <div class="cards" id="air-container">
-    <div class="card"><span class="loader"></span>Chargement…</div>
+    <div class="card"><span class="loader"></span> Chargement…</div>
   </div>
 
-  <div class="aqi-bar-wrap" id="aqi-bar-section" style="display:none;margin-top:1.5rem">
-    <div style="font-size:0.6rem;letter-spacing:0.2em;color:#555;margin-bottom:0.5rem">INDICE DE QUALITÉ DE L'AIR (AQI EUROPÉEN)</div>
+  <div class="aqi-bar-section" id="aqi-bar-section" style="display:none">
+    <div class="aqi-bar-label">INDICE DE QUALITÉ DE L'AIR (AQI EUROPÉEN)</div>
     <div class="aqi-bar">
       <div class="aqi-cursor" id="aqi-cursor" style="left:10%"></div>
     </div>
-    <div style="display:flex;justify-content:space-between;font-size:0.55rem;color:#444">
+    <div class="aqi-scale">
       <span>Bon</span><span>Acceptable</span><span>Modéré</span><span>Mauvais</span><span>Très mauvais</span>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ TRANSPORTS ═══════════════ -->
+<!-- ══════════════════════════════════════
+     03 — TRANSPORTS
+══════════════════════════════════════ -->
 <section class="section" id="transports">
   <div class="section-header">
     <span class="section-num">03</span>
-    <h2 class="section-title">Réseau Tan</h2>
+    <h2 class="section-title">Réseau TAN</h2>
     <span class="section-source">SOURCE · data.nantesmetropole.fr</span>
   </div>
 
-  <div class="transport-list" id="transport-container">
-    <!-- Static data — TAN API requires auth -->
+  <div class="transport-list">
     <div class="transport-item">
       <div class="transport-badge badge-tram">T1</div>
       <div class="transport-name">François-Mitterrand ↔ Beaujoire</div>
@@ -598,7 +142,7 @@
     </div>
     <div class="transport-item">
       <div class="transport-badge badge-tram">T2</div>
-      <div class="transport-name">Gare de Reze ↔ Orvault Grand Val</div>
+      <div class="transport-name">Gare de Rezé ↔ Orvault Grand Val</div>
       <div class="transport-status status-ok">● En service</div>
     </div>
     <div class="transport-item">
@@ -617,20 +161,22 @@
       <div class="transport-status status-ok">● En service</div>
     </div>
     <div class="transport-item">
-      <div class="transport-badge badge-velo">🚲</div>
-      <div class="transport-name">Bicloo — <span id="velo-total-stations">—</span> stations actives</div>
-      <div class="transport-status status-ok" id="velo-transport-status">● Chargement</div>
+      <div class="transport-badge badge-tram" style="background:var(--accent);color:var(--bg-base)">🚲</div>
+      <div class="transport-name">Bicloo — <span id="velo-total-stations">—</span> stations</div>
+      <div class="transport-status" id="velo-transport-status"><span class="loader"></span></div>
     </div>
   </div>
 
-  <div class="info-block" style="margin-top:1.5rem">
-    ℹ️ Les horaires temps réel TAN nécessitent une clé API (gratuite) disponible sur
+  <div class="info-block">
+    ℹ️ Les horaires temps réel TAN nécessitent une clé API disponible sur
     <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>.
     Les données Bicloo ci-dessous sont en temps réel via l'API JCDecaux publique.
   </div>
 </section>
 
-<!-- ═══════════════ VÉLOS ═══════════════ -->
+<!-- ══════════════════════════════════════
+     04 — VÉLOS BICLOO
+══════════════════════════════════════ -->
 <section class="section" id="velos">
   <div class="section-header">
     <span class="section-num">04</span>
@@ -642,7 +188,7 @@
     <div class="card"><div class="card-label">Stations actives</div><div class="card-val" id="velo-stations">—</div></div>
     <div class="card"><div class="card-label">Vélos disponibles</div><div class="card-val" id="velo-bikes">—</div></div>
     <div class="card"><div class="card-label">Places libres</div><div class="card-val" id="velo-docks">—</div></div>
-    <div class="card"><div class="card-label">Taux occupation</div><div class="card-val" id="velo-rate">—</div></div>
+    <div class="card"><div class="card-label">Taux d'occupation</div><div class="card-val" id="velo-rate">—</div></div>
   </div>
 
   <div class="velo-grid" id="velo-grid">
@@ -650,7 +196,9 @@
   </div>
 </section>
 
-<!-- ═══════════════ AGENDA / OPENAGENDA ═══════════════ -->
+<!-- ══════════════════════════════════════
+     05 — AGENDA
+══════════════════════════════════════ -->
 <section class="section" id="agenda">
   <div class="section-header">
     <span class="section-num">05</span>
@@ -661,12 +209,14 @@
   <div class="event-list" id="agenda-container">
     <div class="event-item">
       <div class="event-date">—</div>
-      <div><span class="loader"></span> Chargement des événements…</div>
+      <div><span class="loader"></span> Chargement…</div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ DONNÉES VILLE ═══════════════ -->
+<!-- ══════════════════════════════════════
+     06 — NANTES EN CHIFFRES
+══════════════════════════════════════ -->
 <section class="section" id="ville">
   <div class="section-header">
     <span class="section-num">06</span>
@@ -674,82 +224,88 @@
     <span class="section-source">SOURCE · geo.api.gouv.fr · INSEE</span>
   </div>
 
-  <div class="big-stats" id="ville-stats">
+  <div class="big-stats">
     <div class="big-stat"><div class="big-stat-val" id="ville-pop">—</div><div class="big-stat-label">Habitants</div></div>
     <div class="big-stat"><div class="big-stat-val">44000</div><div class="big-stat-label">Code postal</div></div>
-    <div class="big-stat"><div class="big-stat-val" id="ville-surface">—</div><div class="big-stat-label">km²</div></div>
+    <div class="big-stat"><div class="big-stat-val" id="ville-surface">—</div><div class="big-stat-label">km² superficie</div></div>
     <div class="big-stat"><div class="big-stat-val">6ème</div><div class="big-stat-label">Ville de France</div></div>
-    <div class="big-stat"><div class="big-stat-val">1598</div><div class="big-stat-label">Communes métropole</div></div>
     <div class="big-stat"><div class="big-stat-val">24</div><div class="big-stat-label">Communes métropole</div></div>
     <div class="big-stat"><div class="big-stat-val">650 000</div><div class="big-stat-label">Habitants métropole</div></div>
     <div class="big-stat"><div class="big-stat-val">47°N</div><div class="big-stat-label">Latitude</div></div>
+    <div class="big-stat"><div class="big-stat-val">Loire</div><div class="big-stat-label">Fleuve</div></div>
   </div>
 
-  <div style="margin-top:1px">
-    <div class="two-col">
-      <div class="two-col-block">
-        <div class="card-label" style="margin-bottom:1rem">CODES & IDENTIFIANTS</div>
-        <div id="ville-codes" style="font-size:0.7rem;line-height:2;color:#777">
-          <span class="loader"></span>
-        </div>
-      </div>
-      <div class="two-col-block">
-        <div class="card-label" style="margin-bottom:1rem">GÉOGRAPHIE</div>
-        <div id="ville-geo" style="font-size:0.7rem;line-height:2;color:#777">
-          <span class="loader"></span>
-        </div>
-      </div>
+  <div class="two-col">
+    <div class="two-col-block">
+      <div class="card-label" style="margin-bottom:1rem">CODES &amp; IDENTIFIANTS</div>
+      <div id="ville-codes"><span class="loader"></span></div>
+    </div>
+    <div class="two-col-block">
+      <div class="card-label" style="margin-bottom:1rem">GÉOGRAPHIE</div>
+      <div id="ville-geo"><span class="loader"></span></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════ WIKIPEDIA ═══════════════ -->
+<!-- ══════════════════════════════════════
+     07 — WIKIPEDIA
+══════════════════════════════════════ -->
 <section class="section" id="wiki">
   <div class="section-header">
     <span class="section-num">07</span>
     <h2 class="section-title">Extrait Wikipedia</h2>
     <span class="section-source">SOURCE · fr.wikipedia.org/api</span>
   </div>
-  <div style="border:1px solid #1a1a1a;">
-    <div style="padding:2rem;font-size:0.85rem;line-height:1.9;color:#aaa;" id="wiki-content">
+
+  <div class="wiki-block">
+    <div class="wiki-content" id="wiki-content">
       <span class="loader"></span> Chargement…
     </div>
-    <div style="padding:1rem 2rem;border-top:1px solid #1a1a1a;font-size:0.6rem;color:#444;display:flex;gap:1rem;flex-wrap:wrap" id="wiki-meta"></div>
+    <div class="wiki-meta" id="wiki-meta"></div>
   </div>
 </section>
 
-<!-- ═══════════════ SUNRISE / SUNSET ═══════════════ -->
-<section class="section">
+<!-- ══════════════════════════════════════
+     08 — ASTRONOMIE
+══════════════════════════════════════ -->
+<section class="section" id="astronomie">
   <div class="section-header">
     <span class="section-num">08</span>
-    <h2 class="section-title">Soleil & Astronomie</h2>
+    <h2 class="section-title">Soleil &amp; Astronomie</h2>
     <span class="section-source">SOURCE · open-meteo.com</span>
   </div>
+
   <div class="cards" id="sun-container">
     <div class="card"><span class="loader"></span></div>
   </div>
 </section>
 
-<!-- ═══════════════ CARTE ═══════════════ -->
+<!-- ══════════════════════════════════════
+     09 — CARTE
+══════════════════════════════════════ -->
 <section class="section" id="carte">
   <div class="section-header">
     <span class="section-num">09</span>
     <h2 class="section-title">Carte</h2>
     <span class="section-source">SOURCE · OpenStreetMap</span>
   </div>
+
   <div class="map-frame">
     <iframe
       src="https://www.openstreetmap.org/export/embed.html?bbox=-1.6500%2C47.1700%2C-1.4500%2C47.2800&layer=mapnik&marker=47.2184%2C-1.5536"
       allowfullscreen
-      loading="lazy">
+      loading="lazy"
+      title="Carte de Nantes — OpenStreetMap">
     </iframe>
   </div>
-  <div style="font-size:0.6rem;color:#333;padding:0.75rem 0;text-align:right">
-    © <a href="https://www.openstreetmap.org/copyright" style="color:#444" target="_blank">OpenStreetMap contributors</a>
+  <div class="map-credit">
+    © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>
   </div>
 </section>
 
-<!-- ═══════════════ RÉPERTOIRE APIs ═══════════════ -->
+<!-- ══════════════════════════════════════
+     10 — APIS UTILISÉES
+══════════════════════════════════════ -->
 <section class="section" id="apis">
   <div class="section-header">
     <span class="section-num">10</span>
@@ -757,459 +313,127 @@
   </div>
 
   <div class="transport-list">
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-green">LIVE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>Open-Meteo</strong> — Météo, qualité de l'air, astronomie<br>
-        <span style="color:#555;font-size:0.6rem">https://api.open-meteo.com/v1/forecast</span>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>Open-Meteo</strong> — Météo, qualité de l'air, astronomie
+        <span class="api-url">https://api.open-meteo.com/v1/forecast</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">Gratuit · Sans clé API</span>
+      <span class="api-note">Gratuit · Sans clé</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-green">LIVE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>JCDecaux Bicloo</strong> — Stations vélos Nantes<br>
-        <span style="color:#555;font-size:0.6rem">https://api.jcdecaux.com/vls/v1/stations?contract=nantes</span>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>JCDecaux Bicloo</strong> — Stations vélos Nantes
+        <span class="api-url">https://api.jcdecaux.com/vls/v1/stations?contract=nantes</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">Clé gratuite</span>
+      <span class="api-note">Clé gratuite</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-green">LIVE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>OpenAgenda</strong> — Événements culturels Nantes<br>
-        <span style="color:#555;font-size:0.6rem">https://api.openagenda.com/v2/agendas/{id}/events</span>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>OpenAgenda</strong> — Événements culturels
+        <span class="api-url">https://api.openagenda.com/v2/agendas/{id}/events</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">Clé gratuite</span>
+      <span class="api-note">Clé gratuite</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-green">LIVE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>API Géo Gouv</strong> — Données INSEE, communes<br>
-        <span style="color:#555;font-size:0.6rem">https://geo.api.gouv.fr/communes/44109</span>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>API Géo Gouv</strong> — Données INSEE
+        <span class="api-url">https://geo.api.gouv.fr/communes/44109</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">Gratuit · Sans clé API</span>
+      <span class="api-note">Gratuit · Sans clé</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-green">LIVE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>Wikipedia REST API</strong> — Résumé encyclopédique<br>
-        <span style="color:#555;font-size:0.6rem">https://fr.wikipedia.org/api/rest_v1/page/summary/Nantes</span>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>Wikipedia REST API</strong> — Résumé encyclopédique
+        <span class="api-url">https://fr.wikipedia.org/api/rest_v1/page/summary/Nantes</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">Gratuit · Sans clé API</span>
+      <span class="api-note">Gratuit · Sans clé</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-yellow">STATIQUE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>OpenStreetMap</strong> — Fond de carte interactif<br>
-        <span style="color:#555;font-size:0.6rem">https://www.openstreetmap.org</span>
+    <div class="api-item">
+      <span class="tag tag-static">STATIQUE</span>
+      <div class="api-name">
+        <strong>OpenStreetMap</strong> — Fond de carte
+        <span class="api-url">https://www.openstreetmap.org</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">Gratuit · CC-BY-SA</span>
+      <span class="api-note">CC-BY-SA</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-yellow">CLÉ REQUISE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>TAN Temps Réel (SIRI)</strong> — Passages aux arrêts<br>
-        <span style="color:#555;font-size:0.6rem">https://open.tan.fr/ewp/arrets.json · GTFS disponible</span>
+    <div class="api-item">
+      <span class="tag tag-key">CLÉ</span>
+      <div class="api-name">
+        <strong>TAN Temps Réel (SIRI)</strong> — Passages aux arrêts
+        <span class="api-url">https://open.tan.fr/ewp/arrets.json · GTFS disponible</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">API gratuite</span>
+      <span class="api-note">API gratuite</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-yellow">CLÉ REQUISE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>Data Nantes Métropole</strong> — Open data : parkings, équipements…<br>
-        <span style="color:#555;font-size:0.6rem">https://data.nantesmetropole.fr/api/explore/v2.1</span>
+    <div class="api-item">
+      <span class="tag tag-key">CLÉ</span>
+      <div class="api-name">
+        <strong>Data Nantes Métropole</strong> — Open data parkings, équipements
+        <span class="api-url">https://data.nantesmetropole.fr/api/explore/v2.1</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">CKAN Open API</span>
+      <span class="api-note">CKAN Open API</span>
     </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-yellow">CLÉ REQUISE</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>Air Pays de la Loire (ATMO)</strong> — Capteurs pollution fin<br>
-        <span style="color:#555;font-size:0.6rem">https://data-atmo-paysdelaloire.opendatasoft.com</span>
+    <div class="api-item">
+      <span class="tag tag-key">CLÉ</span>
+      <div class="api-name">
+        <strong>ATMO Pays de la Loire</strong> — Capteurs pollution
+        <span class="api-url">https://data-atmo-paysdelaloire.opendatasoft.com</span>
       </div>
-      <span style="font-size:0.6rem;color:#444">Open data</span>
-    </div>
-    <div class="transport-item" style="flex-wrap:wrap;gap:0.5rem">
-      <span class="tag tag-red">PAYANT</span>
-      <div class="transport-name" style="font-size:0.7rem">
-        <strong>Overpass API (OSM)</strong> — POI, commerces, monuments<br>
-        <span style="color:#555;font-size:0.6rem">https://overpass-api.de/api/interpreter</span>
-      </div>
-      <span style="font-size:0.6rem;color:#444">Gratuit (rate limit)</span>
+      <span class="api-note">Open data</span>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer>
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer class="footer">
+  <div>
+    <div class="footer-brand">Nantes</div>
+    <div class="footer-tagline">
+      Tableau de bord open data.<br>
+      Données publiques · Temps réel.<br>
+      Loire-Atlantique · France · 44000
+    </div>
+  </div>
+
   <div class="footer-col">
-    <h4>DONNÉES OUVERTES</h4>
+    <h4>Données ouvertes</h4>
     <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>
     <a href="https://open.tan.fr" target="_blank">open.tan.fr</a>
-    <a href="https://data.atmo-paysdelaloire.opendatasoft.com" target="_blank">ATMO Pays de la Loire</a>
+    <a href="https://data-atmo-paysdelaloire.opendatasoft.com" target="_blank">ATMO Pays de la Loire</a>
     <a href="https://geo.api.gouv.fr" target="_blank">geo.api.gouv.fr</a>
   </div>
+
   <div class="footer-col">
-    <h4>APIS UTILISÉES</h4>
+    <h4>APIs utilisées</h4>
     <a href="https://open-meteo.com" target="_blank">Open-Meteo</a>
     <a href="https://developer.jcdecaux.com" target="_blank">JCDecaux API</a>
     <a href="https://openagenda.com" target="_blank">OpenAgenda</a>
     <a href="https://fr.wikipedia.org/api/rest_v1/" target="_blank">Wikipedia REST API</a>
   </div>
+
   <div class="footer-col">
-    <h4>NANTES · 44000</h4>
+    <h4>Nantes · 44000</h4>
     <a href="https://www.nantes.fr" target="_blank">nantes.fr</a>
     <a href="https://metropole.nantes.fr" target="_blank">Nantes Métropole</a>
     <a href="https://www.tan.fr" target="_blank">Réseau TAN</a>
-    <span style="margin-top:1rem;display:block">Données publiques · Open Source</span>
+    <a href="https://www.bicloo.nantesmetropole.fr" target="_blank">Bicloo</a>
   </div>
 </footer>
 
-<script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CONFIGURATION
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const LAT = 47.2184;
-const LON = -1.5536;
+<div class="footer-bottom">
+  <span>Tableau de bord · Données publiques · Open Source</span>
+  <span><span class="live-dot"></span> Données actualisées en temps réel</span>
+</div>
 
-// JCDecaux: remplacez par votre clé gratuite sur https://developer.jcdecaux.com
-const JCDECAUX_KEY = 'YOUR_JCDECAUX_KEY';
-
-// OpenAgenda: clé publique de l'agenda de Nantes
-const OA_KEY = 'YOUR_OPENAGENDA_KEY';
-const OA_UID = '44171547'; // Agenda "Nantes" sur OpenAgenda
-
-const WMO_CODES = {
-  0:'☀️ Ciel dégagé',1:'🌤 Peu nuageux',2:'⛅ Partiellement nuageux',3:'☁️ Couvert',
-  45:'🌫 Brouillard',48:'🌫 Brouillard givrant',51:'🌦 Bruine légère',53:'🌦 Bruine modérée',
-  55:'🌧 Bruine dense',61:'🌧 Pluie légère',63:'🌧 Pluie modérée',65:'🌧 Pluie forte',
-  71:'❄️ Neige légère',73:'❄️ Neige modérée',75:'❄️ Neige forte',80:'🌦 Averses légères',
-  81:'🌧 Averses modérées',82:'⛈ Averses violentes',95:'⛈ Orage',96:'⛈ Orage grêle',
-};
-
-const WIND_DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
-
-function windDir(deg) {
-  return WIND_DIRS[Math.round(deg / 22.5) % 16];
-}
-
-function formatTime(iso) {
-  return new Date(iso).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-}
-function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('fr-FR', {weekday:'short', day:'numeric', month:'short'});
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// MÉTÉO — open-meteo.com
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadMeteo() {
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
-      `&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,wind_direction_10m,` +
-      `precipitation,weather_code,cloud_cover,visibility,uv_index` +
-      `&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_sum,sunrise,sunset,uv_index_max` +
-      `&timezone=Europe%2FParis&forecast_days=7`;
-
-    const res = await fetch(url);
-    const d = await res.json();
-    const c = d.current;
-
-    const wmo = WMO_CODES[c.weather_code] || '🌡';
-    const icon = wmo.split(' ')[0];
-    const desc = wmo.split(' ').slice(1).join(' ');
-
-    document.getElementById('meteo-icon').textContent = icon;
-    document.getElementById('meteo-temp').textContent = Math.round(c.temperature_2m) + '°C';
-    document.getElementById('meteo-desc').textContent = desc;
-    document.getElementById('meteo-time').textContent = 'Mis à jour ' + formatTime(c.time);
-    document.getElementById('meteo-feel').textContent = Math.round(c.apparent_temperature) + '°C';
-    document.getElementById('meteo-humidity').textContent = c.relative_humidity_2m + '%';
-    document.getElementById('meteo-wind').textContent = Math.round(c.wind_speed_10m) + ' km/h';
-    document.getElementById('meteo-wind-dir').textContent = windDir(c.wind_direction_10m);
-    document.getElementById('meteo-precip').textContent = c.precipitation + ' mm';
-    document.getElementById('meteo-cloud').textContent = c.cloud_cover + '%';
-    document.getElementById('meteo-vis').textContent = (c.visibility / 1000).toFixed(1) + ' km';
-    document.getElementById('meteo-uv').textContent = c.uv_index;
-
-    // Prévisions
-    const fc = document.getElementById('forecast-container');
-    fc.innerHTML = '';
-    for (let i = 0; i < 7; i++) {
-      const wmoD = WMO_CODES[d.daily.weather_code[i]] || '—';
-      const card = document.createElement('div');
-      card.className = 'card fade-in';
-      card.style.animationDelay = (i * 0.07) + 's';
-      card.innerHTML = `
-        <div class="card-label">${formatDate(d.daily.time[i])}</div>
-        <div style="font-size:1.5rem;margin:0.25rem 0">${wmoD.split(' ')[0]}</div>
-        <div class="card-val" style="font-size:1rem">${Math.round(d.daily.temperature_2m_max[i])}° / ${Math.round(d.daily.temperature_2m_min[i])}°</div>
-        <div class="card-sub">${d.daily.precipitation_sum[i]} mm</div>
-      `;
-      fc.appendChild(card);
-    }
-
-    // Astronomie
-    const sunBox = document.getElementById('sun-container');
-    sunBox.innerHTML = '';
-    const today = 0;
-    const sunData = [
-      {label:'Lever du soleil', val: formatTime(d.daily.sunrise[today]), icon:'🌅'},
-      {label:'Coucher du soleil', val: formatTime(d.daily.sunset[today]), icon:'🌇'},
-      {label:'Durée du jour', val: (() => {
-        const diff = new Date(d.daily.sunset[today]) - new Date(d.daily.sunrise[today]);
-        const h = Math.floor(diff/3600000);
-        const m = Math.floor((diff%3600000)/60000);
-        return `${h}h ${m}m`;
-      })(), icon:'⏱'},
-      {label:'UV max aujourd\'hui', val: d.daily.uv_index_max[today], icon:'☀️'},
-    ];
-    sunData.forEach(s => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `<div class="card-label">${s.label}</div><div style="font-size:1.4rem">${s.icon}</div><div class="card-val" style="font-size:1.2rem;margin-top:0.25rem">${s.val}</div>`;
-      sunBox.appendChild(card);
-    });
-
-  } catch(e) {
-    document.getElementById('meteo-desc').innerHTML = '<span class="error-text">Erreur météo</span>';
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// QUALITÉ DE L'AIR — open-meteo.com
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadAir() {
-  try {
-    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LON}` +
-      `&current=european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,sulphur_dioxide` +
-      `&timezone=Europe%2FParis`;
-
-    const res = await fetch(url);
-    const d = await res.json();
-    const c = d.current;
-
-    const aqiVal = c.european_aqi;
-    let aqiLabel, aqiColor;
-    if (aqiVal <= 20) { aqiLabel = 'Bon'; aqiColor = '#2ecc71'; }
-    else if (aqiVal <= 40) { aqiLabel = 'Acceptable'; aqiColor = '#a8d8a8'; }
-    else if (aqiVal <= 60) { aqiLabel = 'Modéré'; aqiColor = '#f1c40f'; }
-    else if (aqiVal <= 80) { aqiLabel = 'Mauvais'; aqiColor = '#e67e22'; }
-    else { aqiLabel = 'Très mauvais'; aqiColor = '#e74c3c'; }
-
-    const container = document.getElementById('air-container');
-    const items = [
-      {label: 'AQI Européen', val: aqiVal, unit: '', note: aqiLabel},
-      {label: 'PM2.5', val: c.pm2_5?.toFixed(1), unit: 'µg/m³'},
-      {label: 'PM10', val: c.pm10?.toFixed(1), unit: 'µg/m³'},
-      {label: 'NO₂', val: c.nitrogen_dioxide?.toFixed(1), unit: 'µg/m³'},
-      {label: 'Ozone O₃', val: c.ozone?.toFixed(1), unit: 'µg/m³'},
-      {label: 'SO₂', val: c.sulphur_dioxide?.toFixed(1), unit: 'µg/m³'},
-      {label: 'CO', val: (c.carbon_monoxide/1000)?.toFixed(2), unit: 'mg/m³'},
-    ];
-
-    container.innerHTML = items.map(i => `
-      <div class="card">
-        <div class="card-label">${i.label}</div>
-        <div class="card-val" style="color:${i.label==='AQI Européen'?aqiColor:'inherit'}">${i.val ?? '—'}</div>
-        <div class="card-sub">${i.unit} ${i.note || ''}</div>
-      </div>
-    `).join('');
-
-    // AQI bar
-    document.getElementById('aqi-bar-section').style.display = 'block';
-    const pct = Math.min(100, (aqiVal / 100) * 100);
-    document.getElementById('aqi-cursor').style.left = pct + '%';
-
-  } catch(e) {
-    document.getElementById('air-container').innerHTML = '<div class="card"><span class="error-text">Données air indisponibles</span></div>';
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// BICLOO — JCDecaux (clé requise)
-// Fallback: fetch sans clé pour demo
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadVelos() {
-  try {
-    let url = `https://api.jcdecaux.com/vls/v1/stations?contract=nantes`;
-    if (JCDECAUX_KEY !== 'YOUR_JCDECAUX_KEY') url += `&apiKey=${JCDECAUX_KEY}`;
-
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('JCDecaux API key requis');
-    const stations = await res.json();
-
-    const active = stations.filter(s => s.status === 'OPEN');
-    const totalBikes = active.reduce((a, s) => a + s.available_bikes, 0);
-    const totalDocks = active.reduce((a, s) => a + s.available_bike_stands, 0);
-    const totalCapacity = active.reduce((a, s) => a + s.bike_stands, 0);
-
-    document.getElementById('velo-stations').textContent = active.length;
-    document.getElementById('velo-bikes').textContent = totalBikes;
-    document.getElementById('velo-docks').textContent = totalDocks;
-    document.getElementById('velo-rate').textContent = Math.round((totalBikes / totalCapacity) * 100) + '%';
-    document.getElementById('velo-total-stations').textContent = active.length;
-    document.getElementById('velo-transport-status').textContent = '● ' + active.length + ' stations';
-
-    // Grid
-    const grid = document.getElementById('velo-grid');
-    const top = active.sort((a,b) => b.available_bikes - a.available_bikes).slice(0, 24);
-    grid.innerHTML = top.map(s => {
-      const pct = Math.round((s.available_bikes / Math.max(s.bike_stands, 1)) * 100);
-      return `
-        <div class="velo-card">
-          <div class="velo-name">${s.name.replace(/^\d+ - /, '')}</div>
-          <div class="velo-bar-wrap">
-            <div class="velo-bar-outer"><div class="velo-bar-inner" style="width:${pct}%"></div></div>
-            <div class="velo-count">${s.available_bikes}<span style="color:#444">/${s.bike_stands}</span></div>
-          </div>
-          <div style="font-size:0.55rem;color:#444;margin-top:4px">${s.available_bike_stands} places libres</div>
-        </div>
-      `;
-    }).join('');
-
-  } catch(e) {
-    // Démo sans clé — données statiques illustratives
-    document.getElementById('velo-stations').textContent = '102';
-    document.getElementById('velo-bikes').textContent = '~850';
-    document.getElementById('velo-docks').textContent = '~650';
-    document.getElementById('velo-rate').textContent = '~57%';
-    document.getElementById('velo-total-stations').textContent = '102';
-    document.getElementById('velo-transport-status').innerHTML = '● 102 stations <span style="color:#f1c40f">(clé API requise)</span>';
-    document.getElementById('velo-grid').innerHTML = `
-      <div class="card" style="grid-column:1/-1">
-        <p style="font-size:0.75rem;color:#666">
-          ⚠️ Clé API JCDecaux requise pour les données en temps réel.<br>
-          Inscription gratuite sur <a href="https://developer.jcdecaux.com" style="color:var(--vert)" target="_blank">developer.jcdecaux.com</a><br>
-          Ajoutez votre clé dans la variable <code style="color:var(--accent)">JCDECAUX_KEY</code> du script.
-        </p>
-      </div>`;
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// OPENAGENDA (clé publique requise)
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadAgenda() {
-  const container = document.getElementById('agenda-container');
-  try {
-    if (OA_KEY === 'YOUR_OPENAGENDA_KEY') throw new Error('Clé requise');
-    const after = Math.floor(Date.now() / 1000);
-    const url = `https://api.openagenda.com/v2/agendas/${OA_UID}/events?key=${OA_KEY}&size=10&timings[gte]=${after}&lang=fr`;
-    const res = await fetch(url);
-    const d = await res.json();
-
-    if (!d.events || !d.events.length) throw new Error('Aucun événement');
-
-    container.innerHTML = d.events.map(ev => {
-      const t = ev.timings?.[0];
-      const dateStr = t ? formatDate(t.begin) : '—';
-      const timeStr = t ? formatTime(t.begin) : '';
-      const title = ev.title?.fr || ev.title?.[''] || 'Événement';
-      const cat = ev.keywords?.[0] || 'Culture';
-      return `
-        <div class="event-item">
-          <div class="event-date">${dateStr}<br><span style="color:#555">${timeStr}</span></div>
-          <div>
-            <div class="event-title">${title}</div>
-            <div class="card-sub" style="margin-top:4px">${ev.location?.name || ''}</div>
-          </div>
-          <div class="event-cat">${cat}</div>
-        </div>`;
-    }).join('');
-
-  } catch(e) {
-    // Démo statique
-    const eventsDemo = [
-      {date:'Sam 5 Avr', time:'20h30', title:'Concert au Lieu Unique', lieu:'Le Lieu Unique', cat:'Musique'},
-      {date:'Dim 6 Avr', time:'15h00', title:'Exposition — Les Machines de l\'île', lieu:'Île de Nantes', cat:'Art'},
-      {date:'Mar 8 Avr', time:'19h00', title:'Conférence Citoyenne', lieu:'Maison de l\'Erdre', cat:'Citoyen'},
-      {date:'Mer 9 Avr', time:'18h30', title:'Marché nocturne Talensac', lieu:'Marché Talensac', cat:'Marché'},
-      {date:'Ven 11 Avr', time:'21h00', title:'Nuit du Cinéma', lieu:'Le Katorza', cat:'Cinéma'},
-      {date:'Sam 12 Avr', time:'10h00', title:'Vide-grenier République', lieu:'Place de la République', cat:'Braderie'},
-    ];
-    container.innerHTML = eventsDemo.map(e => `
-      <div class="event-item">
-        <div class="event-date">${e.date}<br><span style="color:#555">${e.time}</span></div>
-        <div>
-          <div class="event-title">${e.title}</div>
-          <div class="card-sub" style="margin-top:4px">${e.lieu}</div>
-        </div>
-        <div class="event-cat">${e.cat}</div>
-      </div>`).join('') +
-      `<div class="event-item" style="color:#444;font-size:0.65rem">
-        ⚠️ Données illustratives. Clé <a href="https://openagenda.com" style="color:var(--vert)" target="_blank">OpenAgenda</a> requise pour l'agenda réel.
-      </div>`;
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// API GÉO GOUV — INSEE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadVille() {
-  try {
-    const res = await fetch('https://geo.api.gouv.fr/communes/44109?fields=nom,code,codesPostaux,siren,codeEpci,codeDepartement,codeRegion,population,surface,centre,contour&format=json&geometry=centre');
-    const d = await res.json();
-
-    document.getElementById('ville-pop').textContent = d.population?.toLocaleString('fr-FR') ?? '—';
-    document.getElementById('ville-surface').textContent = d.surface ? (d.surface / 100).toFixed(1) : '65.2';
-
-    document.getElementById('ville-codes').innerHTML = `
-      <span style="color:#555">Code INSEE :</span> ${d.code}<br>
-      <span style="color:#555">Code postal :</span> ${d.codesPostaux?.join(', ')}<br>
-      <span style="color:#555">SIREN :</span> ${d.siren ?? '217441090'}<br>
-      <span style="color:#555">Code EPCI :</span> ${d.codeEpci}<br>
-      <span style="color:#555">Département :</span> ${d.codeDepartement} (Loire-Atlantique)<br>
-      <span style="color:#555">Région :</span> ${d.codeRegion} (Pays de la Loire)
-    `;
-
-    const [lon, lat] = d.centre?.coordinates ?? [LON, LAT];
-    document.getElementById('ville-geo').innerHTML = `
-      <span style="color:#555">Latitude :</span> ${lat.toFixed(4)}°N<br>
-      <span style="color:#555">Longitude :</span> ${lon.toFixed(4)}°E<br>
-      <span style="color:#555">Surface :</span> ${d.surface ? (d.surface/100).toFixed(1) : '65.2'} km²<br>
-      <span style="color:#555">Population :</span> ${d.population?.toLocaleString('fr-FR') ?? '322 319'}<br>
-      <span style="color:#555">Fuseau :</span> Europe/Paris (UTC+1)<br>
-      <span style="color:#555">Altitude mairie :</span> ~8 m
-    `;
-  } catch(e) {
-    document.getElementById('ville-codes').innerHTML = '<span class="error-text">Erreur API Géo Gouv</span>';
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// WIKIPEDIA
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadWiki() {
-  try {
-    const res = await fetch('https://fr.wikipedia.org/api/rest_v1/page/summary/Nantes', {
-      headers: { 'Accept': 'application/json' }
-    });
-    const d = await res.json();
-    document.getElementById('wiki-content').innerHTML = `<p>${d.extract}</p>`;
-    document.getElementById('wiki-meta').innerHTML = `
-      <span>📅 Modifié le ${new Date(d.timestamp).toLocaleDateString('fr-FR')}</span>
-      <a href="${d.content_urls?.desktop?.page}" target="_blank" style="color:var(--vert)">→ Lire sur Wikipedia</a>
-      <span style="margin-left:auto;color:#333">${d.lang.toUpperCase()} · ${d.description ?? ''}</span>
-    `;
-  } catch(e) {
-    document.getElementById('wiki-content').innerHTML = '<span class="error-text">Wikipedia indisponible</span>';
-  }
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// INIT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-(async () => {
-  await Promise.allSettled([
-    loadMeteo(),
-    loadAir(),
-    loadVelos(),
-    loadAgenda(),
-    loadVille(),
-    loadWiki(),
-  ]);
-})();
-</script>
+<!-- ══════════════════════════════════════
+     SCRIPTS — modules ES6
+══════════════════════════════════════ -->
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
