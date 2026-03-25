@@ -3,438 +3,1471 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nantes — Tableau de Bord</title>
+  <title>Nantes · Tableau de Bord</title>
   <meta name="description" content="Tableau de bord en temps réel de la ville de Nantes : météo, transports, qualité de l'air, vélos Bicloo, agenda culturel.">
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-  <!-- Themes (chargés en premier, avant main.css) -->
-  <link rel="stylesheet" href="css/nuit.css">
-  <link rel="stylesheet" href="css/jour.css">
-  <link rel="stylesheet" href="css/aube.css">
-  <link rel="stylesheet" href="css/foret.css">
+  <style>
+    /* ═══════════════════════════════════════
+       THÈMES
+    ═══════════════════════════════════════ */
+    [data-theme="nuit"] {
+      --bg-base:       #0d0f14;
+      --bg-surface:    #13161e;
+      --bg-card:       #1a1e29;
+      --bg-hover:      #20253300;
+      --border:        rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.13);
+      --text-primary:  #e8eaf0;
+      --text-secondary:#9aa0b8;
+      --text-muted:    #545970;
+      --accent:        #5b8af0;
+      --accent-dim:    rgba(91,138,240,0.15);
+      --accent-glow:   rgba(91,138,240,0.3);
+      --live:          #22c55e;
+      --badge-bg:      rgba(91,138,240,0.12);
+      --shadow:        0 4px 24px rgba(0,0,0,0.4);
+      --nav-blur:      blur(20px);
+      --nav-bg:        rgba(13,15,20,0.85);
+    }
+    [data-theme="jour"] {
+      --bg-base:       #f4f5f8;
+      --bg-surface:    #ffffff;
+      --bg-card:       #ffffff;
+      --bg-hover:      #f0f2f8;
+      --border:        rgba(0,0,0,0.07);
+      --border-strong: rgba(0,0,0,0.13);
+      --text-primary:  #1a1d2e;
+      --text-secondary:#5a5f78;
+      --text-muted:    #9fa4ba;
+      --accent:        #3b6de8;
+      --accent-dim:    rgba(59,109,232,0.1);
+      --accent-glow:   rgba(59,109,232,0.25);
+      --live:          #16a34a;
+      --badge-bg:      rgba(59,109,232,0.1);
+      --shadow:        0 4px 24px rgba(0,0,0,0.08);
+      --nav-blur:      blur(20px);
+      --nav-bg:        rgba(244,245,248,0.88);
+    }
+    [data-theme="aube"] {
+      --bg-base:       #1a1020;
+      --bg-surface:    #22182e;
+      --bg-card:       #2a1f3a;
+      --bg-hover:      #301f3a;
+      --border:        rgba(255,180,120,0.1);
+      --border-strong: rgba(255,180,120,0.2);
+      --text-primary:  #f0dfc8;
+      --text-secondary:#c4a882;
+      --text-muted:    #7a6050;
+      --accent:        #f97c3c;
+      --accent-dim:    rgba(249,124,60,0.15);
+      --accent-glow:   rgba(249,124,60,0.3);
+      --live:          #fb923c;
+      --badge-bg:      rgba(249,124,60,0.12);
+      --shadow:        0 4px 24px rgba(0,0,0,0.5);
+      --nav-blur:      blur(20px);
+      --nav-bg:        rgba(26,16,32,0.88);
+    }
+    [data-theme="foret"] {
+      --bg-base:       #0d1610;
+      --bg-surface:    #131e16;
+      --bg-card:       #1a2820;
+      --bg-hover:      #1f2e25;
+      --border:        rgba(120,200,140,0.1);
+      --border-strong: rgba(120,200,140,0.18);
+      --text-primary:  #d4edda;
+      --text-secondary:#8db898;
+      --text-muted:    #4a6a52;
+      --accent:        #4ade80;
+      --accent-dim:    rgba(74,222,128,0.12);
+      --accent-glow:   rgba(74,222,128,0.25);
+      --live:          #4ade80;
+      --badge-bg:      rgba(74,222,128,0.1);
+      --shadow:        0 4px 24px rgba(0,0,0,0.45);
+      --nav-blur:      blur(20px);
+      --nav-bg:        rgba(13,22,16,0.88);
+    }
 
-  <!-- Styles principaux -->
-  <link rel="stylesheet" href="css/main.css">
+    /* ═══════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ═══════════════════════════════════════
+       LAYOUT — SIDEBAR + MAIN
+    ═══════════════════════════════════════ */
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+
+    /* ═══════════════════════════════════════
+       TOPBAR (mobile & desktop header)
+    ═══════════════════════════════════════ */
+    .topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0 1.5rem;
+      height: 56px;
+      background: var(--nav-bg);
+      backdrop-filter: var(--nav-blur);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-logo {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .topbar-logo span {
+      color: var(--accent);
+    }
+
+    .topbar-live {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      width: 6px; height: 6px;
+      background: var(--live);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .topbar-spacer { flex: 1; }
+
+    /* Theme switcher in topbar */
+    .theme-switcher {
+      display: flex;
+      gap: 4px;
+    }
+    .theme-btn {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+    }
+    .theme-btn:hover { transform: scale(1.1); }
+    .theme-btn.active { border-color: var(--accent); }
+    .theme-btn[data-t="nuit"]  { background: #1a1e29; }
+    .theme-btn[data-t="jour"]  { background: #dce6f5; }
+    .theme-btn[data-t="aube"]  { background: #3a2040; }
+    .theme-btn[data-t="foret"] { background: #1a2820; }
+
+    /* Hamburger (mobile) */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 20px; height: 2px;
+      background: var(--text-secondary);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+
+    /* ═══════════════════════════════════════
+       SIDEBAR
+    ═══════════════════════════════════════ */
+    .sidebar {
+      grid-column: 1;
+      grid-row: 2;
+      width: 240px;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+
+    .sidebar-section-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 1.2rem 1.2rem 0.4rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0.55rem 1.2rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+      cursor: pointer;
+    }
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: var(--accent-dim);
+      border-left-color: var(--accent);
+      text-decoration: none;
+    }
+    .nav-link.active {
+      color: var(--accent);
+      background: var(--accent-dim);
+      border-left-color: var(--accent);
+    }
+    .nav-icon {
+      font-size: 1rem;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .nav-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* ═══════════════════════════════════════
+       MAIN CONTENT
+    ═══════════════════════════════════════ */
+    .main {
+      grid-column: 2;
+      grid-row: 2;
+      min-width: 0;
+    }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero {
+      position: relative;
+      padding: 5rem 2.5rem 4rem;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 100% at 80% 50%, var(--accent-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-glow);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .hero-title span { color: var(--accent); }
+
+    .hero-sub {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta {
+      margin-top: 2rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-meta-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .hero-meta-label {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════
+       SECTIONS
+    ═══════════════════════════════════════ */
+    .section {
+      padding: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .section-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .section-source {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* ═══════════════════════════════════════
+       CARDS GRID
+    ═══════════════════════════════════════ */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .card {
+      background: var(--bg-card);
+      padding: 1.2rem;
+      transition: background 0.15s;
+    }
+
+    .card:hover { background: var(--bg-hover); }
+
+    .card-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: 'DM Mono', monospace;
+      line-height: 1.2;
+    }
+
+    .card-sub {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════
+       MÉTÉO MAIN
+    ═══════════════════════════════════════ */
+    .meteo-hero {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.5rem;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1px;
+    }
+
+    .meteo-icon {
+      font-size: 4rem;
+      line-height: 1;
+    }
+
+    .meteo-temp {
+      font-size: 3rem;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .meteo-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .meteo-time {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: 4px;
+    }
+
+    .meteo-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Forecast */
+    .forecast-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      padding-top: 0.5rem;
+    }
+
+    /* ═══════════════════════════════════════
+       AQI BAR
+    ═══════════════════════════════════════ */
+    .aqi-section { margin-top: 1.5rem; }
+
+    .aqi-bar-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .aqi-bar {
+      height: 8px;
+      background: linear-gradient(to right, #22c55e, #84cc16, #eab308, #f97316, #ef4444);
+      border-radius: 100px;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+
+    .aqi-cursor {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px; height: 16px;
+      background: var(--bg-base);
+      border: 2px solid var(--text-primary);
+      border-radius: 50%;
+      transition: left 0.5s;
+    }
+
+    .aqi-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════
+       TRANSPORTS
+    ═══════════════════════════════════════ */
+    .transport-list {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .transport-item {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.2rem;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .transport-item:last-child { border-bottom: none; }
+    .transport-item:hover { background: var(--accent-dim); }
+
+    .transport-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .badge-tram    { background: #1d4ed8; color: #fff; }
+    .badge-busway  { background: #0e7490; color: #fff; }
+    .badge-navibus { background: #0369a1; color: #fff; }
+
+    .transport-name {
+      font-size: 0.82rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .transport-status {
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-ok  { color: var(--live); }
+    .status-err { color: #ef4444; }
+
+    .info-block {
+      margin-top: 1rem;
+      padding: 0.9rem 1.1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════════
+       VÉLOS GRID
+    ═══════════════════════════════════════ */
+    .velo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 1px;
+    }
+
+    /* ═══════════════════════════════════════
+       AGENDA
+    ═══════════════════════════════════════ */
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .event-item {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 1rem;
+      align-items: start;
+      padding: 1rem 1.2rem;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .event-item:last-child { border-bottom: none; }
+    .event-item:hover { background: var(--accent-dim); }
+
+    .event-date {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-weight: 500;
+      padding-top: 2px;
+    }
+
+    .event-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .event-meta {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════
+       STATS VILLE
+    ═══════════════════════════════════════ */
+    .big-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .big-stat {
+      background: var(--bg-card);
+      padding: 1.2rem;
+      text-align: center;
+    }
+
+    .big-stat-val {
+      font-size: 1.3rem;
+      font-weight: 700;
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+
+    .big-stat-label {
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .two-col-block {
+      background: var(--bg-card);
+      padding: 1.2rem;
+    }
+
+    /* ═══════════════════════════════════════
+       WIKIPEDIA
+    ═══════════════════════════════════════ */
+    .wiki-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .wiki-content {
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .wiki-meta {
+      margin-top: 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════
+       CARTE
+    ═══════════════════════════════════════ */
+    .map-frame {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      aspect-ratio: 16 / 7;
+    }
+
+    .map-frame iframe {
+      width: 100%; height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .map-credit {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      text-align: right;
+    }
+
+    /* ═══════════════════════════════════════
+       APIS TABLE
+    ═══════════════════════════════════════ */
+    .api-list {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .api-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 0.85rem 1.2rem;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .api-item:last-child { border-bottom: none; }
+    .api-item:hover { background: var(--accent-dim); }
+
+    .api-name {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .api-name strong {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .api-url {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--text-muted);
+    }
+
+    .api-note {
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .tag-live   { background: rgba(34,197,94,0.15);  color: #22c55e; }
+    .tag-static { background: rgba(156,163,175,0.15); color: #9ca3af; }
+    .tag-key    { background: rgba(250,204,21,0.15);  color: #facc15; }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .footer {
+      padding: 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr repeat(3, auto);
+      gap: 3rem;
+      border-top: 1px solid var(--border);
+      background: var(--bg-surface);
+    }
+
+    .footer-brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-tagline {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    .footer-col h4 {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-col a {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+    }
+
+    .footer-col a:hover { color: var(--accent); }
+
+    .footer-bottom {
+      padding: 1rem 2.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* ═══════════════════════════════════════
+       LOADER
+    ═══════════════════════════════════════ */
+    .loader {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border-strong);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════
+       MOBILE OVERLAY
+    ═══════════════════════════════════════ */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 90;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ═══════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      .topbar { grid-column: 1; }
+
+      .hamburger { display: flex; }
+
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        z-index: 95;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+        width: 260px;
+        padding-top: 4rem;
+      }
+
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+
+      .main { grid-column: 1; }
+
+      .hero { padding: 2.5rem 1.25rem 2rem; }
+
+      .section { padding: 1.75rem 1.25rem; }
+
+      .footer {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.75rem 1.25rem;
+      }
+
+      .footer-bottom { padding: 1rem 1.25rem; }
+
+      .two-col { grid-template-columns: 1fr; }
+
+      .transport-item {
+        grid-template-columns: 48px 1fr;
+      }
+      .transport-status { display: none; }
+
+      .api-item { grid-template-columns: auto 1fr; }
+      .api-note { display: none; }
+    }
+
+    @media (max-width: 500px) {
+      .hero-title { font-size: 2.5rem; }
+      .meteo-hero { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .big-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════
-     HERO
-══════════════════════════════════════ -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-badge">Tableau de bord en temps réel</div>
-  <h1 class="hero-title">NANTES</h1>
-  <p class="hero-sub">
-    <span class="live-dot"></span>
-    Données publiques · Loire-Atlantique · France
-  </p>
-  <div class="scroll-cue">↓ EXPLORER</div>
-</section>
+<div class="layout">
 
-<!-- ══════════════════════════════════════
-     NAVIGATION
-══════════════════════════════════════ -->
-<nav class="nav">
-  <div class="nav-links">
-    <a href="#meteo"><span class="nav-icon">🌤</span> Météo</a>
-    <a href="#air"><span class="nav-icon">💨</span> Air</a>
-    <a href="#transports"><span class="nav-icon">🚊</span> Transports</a>
-    <a href="#velos"><span class="nav-icon">🚲</span> Vélos</a>
-    <a href="#agenda"><span class="nav-icon">📅</span> Agenda</a>
-    <a href="#ville"><span class="nav-icon">🏙</span> Ville</a>
-    <a href="#wiki"><span class="nav-icon">📖</span> Wikipedia</a>
-    <a href="#astronomie"><span class="nav-icon">🌅</span> Soleil</a>
-    <a href="#carte"><span class="nav-icon">🗺</span> Carte</a>
-    <a href="#apis"><span class="nav-icon">🔌</span> APIs</a>
-  </div>
-  <div class="theme-switcher" id="theme-switcher">
-    <!-- injecté par theme.js -->
-  </div>
-</nav>
+  <!-- ══════════════════════════
+       TOPBAR
+  ══════════════════════════ -->
+  <header class="topbar">
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
 
-<!-- ══════════════════════════════════════
-     01 — MÉTÉO
-══════════════════════════════════════ -->
-<section class="section" id="meteo">
-  <div class="section-header">
-    <span class="section-num">01</span>
-    <h2 class="section-title">Météo en direct</h2>
-    <span class="section-source">SOURCE · open-meteo.com</span>
-  </div>
+    <div class="topbar-logo">NANTES <span>·</span> 44000</div>
 
-  <div class="meteo-grid" id="meteo-grid">
-    <div class="meteo-main">
-      <div class="meteo-icon" id="meteo-icon">⏳</div>
-      <div class="meteo-info">
-        <div class="meteo-temp" id="meteo-temp">—°</div>
-        <div class="meteo-desc" id="meteo-desc">Chargement…</div>
-        <div class="meteo-time" id="meteo-time">—</div>
+    <div class="topbar-live">
+      <span class="live-dot"></span>
+      Temps réel
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn active" data-t="nuit" title="Nuit"></button>
+      <button class="theme-btn" data-t="jour" title="Jour"></button>
+      <button class="theme-btn" data-t="aube" title="Aube"></button>
+      <button class="theme-btn" data-t="foret" title="Forêt"></button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════
+       SIDEBAR
+  ══════════════════════════ -->
+  <div class="sidebar-overlay" id="overlay"></div>
+
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+    <a class="nav-link active" href="#meteo"><span class="nav-icon">🌤</span> Météo<span class="nav-num">01</span></a>
+    <a class="nav-link" href="#air"><span class="nav-icon">💨</span> Qualité de l'air<span class="nav-num">02</span></a>
+    <a class="nav-link" href="#transports"><span class="nav-icon">🚊</span> Réseau TAN<span class="nav-num">03</span></a>
+    <a class="nav-link" href="#velos"><span class="nav-icon">🚲</span> Bicloo<span class="nav-num">04</span></a>
+    <a class="nav-link" href="#agenda"><span class="nav-icon">📅</span> Agenda<span class="nav-num">05</span></a>
+    <a class="nav-link" href="#ville"><span class="nav-icon">🏙</span> Nantes en chiffres<span class="nav-num">06</span></a>
+    <a class="nav-link" href="#wiki"><span class="nav-icon">📖</span> Wikipedia<span class="nav-num">07</span></a>
+    <a class="nav-link" href="#astronomie"><span class="nav-icon">🌅</span> Soleil<span class="nav-num">08</span></a>
+    <a class="nav-link" href="#carte"><span class="nav-icon">🗺</span> Carte<span class="nav-num">09</span></a>
+    <a class="nav-link" href="#apis"><span class="nav-icon">🔌</span> APIs<span class="nav-num">10</span></a>
+  </nav>
+
+  <!-- ══════════════════════════
+       MAIN
+  ══════════════════════════ -->
+  <main class="main">
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="hero-eyebrow">
+        <span class="live-dot"></span>
+        Tableau de bord open data
       </div>
-      <div class="meteo-coords">
-        Nantes · 47.22°N 1.55°O<br>
-        Europe/Paris
+      <h1 class="hero-title">NANTES</h1>
+      <p class="hero-sub">
+        Loire-Atlantique · France · Données publiques en temps réel
+      </p>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <div class="hero-meta-val">47°N</div>
+          <div class="hero-meta-label">Latitude</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hero-meta-val">44000</div>
+          <div class="hero-meta-label">Code postal</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hero-meta-val">6ème</div>
+          <div class="hero-meta-label">Ville de France</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hero-meta-val">Loire</div>
+          <div class="hero-meta-label">Fleuve</div>
+        </div>
       </div>
-    </div>
-    <div class="meteo-detail"><div class="card-label">Ressenti</div><div class="card-val" id="meteo-feel">—</div></div>
-    <div class="meteo-detail"><div class="card-label">Humidité</div><div class="card-val" id="meteo-humidity">—</div></div>
-    <div class="meteo-detail"><div class="card-label">Vent</div><div class="card-val" id="meteo-wind">—</div><div class="card-sub" id="meteo-wind-dir">—</div></div>
-    <div class="meteo-detail"><div class="card-label">Précipitations</div><div class="card-val" id="meteo-precip">—</div></div>
-    <div class="meteo-detail"><div class="card-label">Couverture nuageuse</div><div class="card-val" id="meteo-cloud">—</div></div>
-    <div class="meteo-detail"><div class="card-label">Visibilité</div><div class="card-val" id="meteo-vis">—</div></div>
-    <div class="meteo-detail"><div class="card-label">Indice UV</div><div class="card-val" id="meteo-uv">—</div></div>
-  </div>
+    </section>
 
-  <!-- Prévisions 7 jours -->
-  <div style="margin-top:1px">
-    <div style="font-size:0.52rem;letter-spacing:0.22em;color:var(--text-muted);padding:1rem 0 0.5rem;border-top:1px solid var(--border)">
-      PRÉVISIONS 7 JOURS
-    </div>
-    <div class="cards" id="forecast-container">
-      <div class="card"><span class="loader"></span> Chargement…</div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     02 — QUALITÉ DE L'AIR
-══════════════════════════════════════ -->
-<section class="section" id="air">
-  <div class="section-header">
-    <span class="section-num">02</span>
-    <h2 class="section-title">Qualité de l'air</h2>
-    <span class="section-source">SOURCE · open-meteo.com Air Quality</span>
-  </div>
-
-  <div class="cards" id="air-container">
-    <div class="card"><span class="loader"></span> Chargement…</div>
-  </div>
-
-  <div class="aqi-bar-section" id="aqi-bar-section" style="display:none">
-    <div class="aqi-bar-label">INDICE DE QUALITÉ DE L'AIR (AQI EUROPÉEN)</div>
-    <div class="aqi-bar">
-      <div class="aqi-cursor" id="aqi-cursor" style="left:10%"></div>
-    </div>
-    <div class="aqi-scale">
-      <span>Bon</span><span>Acceptable</span><span>Modéré</span><span>Mauvais</span><span>Très mauvais</span>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     03 — TRANSPORTS
-══════════════════════════════════════ -->
-<section class="section" id="transports">
-  <div class="section-header">
-    <span class="section-num">03</span>
-    <h2 class="section-title">Réseau TAN</h2>
-    <span class="section-source">SOURCE · data.nantesmetropole.fr</span>
-  </div>
-
-  <div class="transport-list">
-    <div class="transport-item">
-      <div class="transport-badge badge-tram">T1</div>
-      <div class="transport-name">François-Mitterrand ↔ Beaujoire</div>
-      <div class="transport-status status-ok">● En service</div>
-    </div>
-    <div class="transport-item">
-      <div class="transport-badge badge-tram">T2</div>
-      <div class="transport-name">Gare de Rezé ↔ Orvault Grand Val</div>
-      <div class="transport-status status-ok">● En service</div>
-    </div>
-    <div class="transport-item">
-      <div class="transport-badge badge-tram">T3</div>
-      <div class="transport-name">Marcel-Paul ↔ Neustrie</div>
-      <div class="transport-status status-ok">● En service</div>
-    </div>
-    <div class="transport-item">
-      <div class="transport-badge badge-busway">BW</div>
-      <div class="transport-name">Busway — Pôle Sud ↔ CHU Hôtel-Dieu</div>
-      <div class="transport-status status-ok">● En service</div>
-    </div>
-    <div class="transport-item">
-      <div class="transport-badge badge-navibus">⛵</div>
-      <div class="transport-name">Navibus Loire — Trentemoult ↔ Gare Maritime</div>
-      <div class="transport-status status-ok">● En service</div>
-    </div>
-    <div class="transport-item">
-      <div class="transport-badge badge-tram" style="background:var(--accent);color:var(--bg-base)">🚲</div>
-      <div class="transport-name">Bicloo — <span id="velo-total-stations">—</span> stations</div>
-      <div class="transport-status" id="velo-transport-status"><span class="loader"></span></div>
-    </div>
-  </div>
-
-  <div class="info-block">
-    ℹ️ Les horaires temps réel TAN nécessitent une clé API disponible sur
-    <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>.
-    Les données Bicloo ci-dessous sont en temps réel via l'API JCDecaux publique.
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     04 — VÉLOS BICLOO
-══════════════════════════════════════ -->
-<section class="section" id="velos">
-  <div class="section-header">
-    <span class="section-num">04</span>
-    <h2 class="section-title">Bicloo en temps réel</h2>
-    <span class="section-source">SOURCE · api.jcdecaux.com</span>
-  </div>
-
-  <div class="cards" style="margin-bottom:1px">
-    <div class="card"><div class="card-label">Stations actives</div><div class="card-val" id="velo-stations">—</div></div>
-    <div class="card"><div class="card-label">Vélos disponibles</div><div class="card-val" id="velo-bikes">—</div></div>
-    <div class="card"><div class="card-label">Places libres</div><div class="card-val" id="velo-docks">—</div></div>
-    <div class="card"><div class="card-label">Taux d'occupation</div><div class="card-val" id="velo-rate">—</div></div>
-  </div>
-
-  <div class="velo-grid" id="velo-grid">
-    <div class="card" style="grid-column:1/-1"><span class="loader"></span> Chargement des stations…</div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     05 — AGENDA
-══════════════════════════════════════ -->
-<section class="section" id="agenda">
-  <div class="section-header">
-    <span class="section-num">05</span>
-    <h2 class="section-title">Agenda Nantais</h2>
-    <span class="section-source">SOURCE · api.openagenda.com</span>
-  </div>
-
-  <div class="event-list" id="agenda-container">
-    <div class="event-item">
-      <div class="event-date">—</div>
-      <div><span class="loader"></span> Chargement…</div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     06 — NANTES EN CHIFFRES
-══════════════════════════════════════ -->
-<section class="section" id="ville">
-  <div class="section-header">
-    <span class="section-num">06</span>
-    <h2 class="section-title">Nantes en chiffres</h2>
-    <span class="section-source">SOURCE · geo.api.gouv.fr · INSEE</span>
-  </div>
-
-  <div class="big-stats">
-    <div class="big-stat"><div class="big-stat-val" id="ville-pop">—</div><div class="big-stat-label">Habitants</div></div>
-    <div class="big-stat"><div class="big-stat-val">44000</div><div class="big-stat-label">Code postal</div></div>
-    <div class="big-stat"><div class="big-stat-val" id="ville-surface">—</div><div class="big-stat-label">km² superficie</div></div>
-    <div class="big-stat"><div class="big-stat-val">6ème</div><div class="big-stat-label">Ville de France</div></div>
-    <div class="big-stat"><div class="big-stat-val">24</div><div class="big-stat-label">Communes métropole</div></div>
-    <div class="big-stat"><div class="big-stat-val">650 000</div><div class="big-stat-label">Habitants métropole</div></div>
-    <div class="big-stat"><div class="big-stat-val">47°N</div><div class="big-stat-label">Latitude</div></div>
-    <div class="big-stat"><div class="big-stat-val">Loire</div><div class="big-stat-label">Fleuve</div></div>
-  </div>
-
-  <div class="two-col">
-    <div class="two-col-block">
-      <div class="card-label" style="margin-bottom:1rem">CODES &amp; IDENTIFIANTS</div>
-      <div id="ville-codes"><span class="loader"></span></div>
-    </div>
-    <div class="two-col-block">
-      <div class="card-label" style="margin-bottom:1rem">GÉOGRAPHIE</div>
-      <div id="ville-geo"><span class="loader"></span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     07 — WIKIPEDIA
-══════════════════════════════════════ -->
-<section class="section" id="wiki">
-  <div class="section-header">
-    <span class="section-num">07</span>
-    <h2 class="section-title">Extrait Wikipedia</h2>
-    <span class="section-source">SOURCE · fr.wikipedia.org/api</span>
-  </div>
-
-  <div class="wiki-block">
-    <div class="wiki-content" id="wiki-content">
-      <span class="loader"></span> Chargement…
-    </div>
-    <div class="wiki-meta" id="wiki-meta"></div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     08 — ASTRONOMIE
-══════════════════════════════════════ -->
-<section class="section" id="astronomie">
-  <div class="section-header">
-    <span class="section-num">08</span>
-    <h2 class="section-title">Soleil &amp; Astronomie</h2>
-    <span class="section-source">SOURCE · open-meteo.com</span>
-  </div>
-
-  <div class="cards" id="sun-container">
-    <div class="card"><span class="loader"></span></div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     09 — CARTE
-══════════════════════════════════════ -->
-<section class="section" id="carte">
-  <div class="section-header">
-    <span class="section-num">09</span>
-    <h2 class="section-title">Carte</h2>
-    <span class="section-source">SOURCE · OpenStreetMap</span>
-  </div>
-
-  <div class="map-frame">
-    <iframe
-      src="https://www.openstreetmap.org/export/embed.html?bbox=-1.6500%2C47.1700%2C-1.4500%2C47.2800&layer=mapnik&marker=47.2184%2C-1.5536"
-      allowfullscreen
-      loading="lazy"
-      title="Carte de Nantes — OpenStreetMap">
-    </iframe>
-  </div>
-  <div class="map-credit">
-    © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════
-     10 — APIS UTILISÉES
-══════════════════════════════════════ -->
-<section class="section" id="apis">
-  <div class="section-header">
-    <span class="section-num">10</span>
-    <h2 class="section-title">APIs utilisées</h2>
-  </div>
-
-  <div class="transport-list">
-    <div class="api-item">
-      <span class="tag tag-live">LIVE</span>
-      <div class="api-name">
-        <strong>Open-Meteo</strong> — Météo, qualité de l'air, astronomie
-        <span class="api-url">https://api.open-meteo.com/v1/forecast</span>
+    <!-- 01 — MÉTÉO -->
+    <section class="section" id="meteo">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Météo en direct</h2>
+        <span class="section-source">open-meteo.com</span>
       </div>
-      <span class="api-note">Gratuit · Sans clé</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-live">LIVE</span>
-      <div class="api-name">
-        <strong>JCDecaux Bicloo</strong> — Stations vélos Nantes
-        <span class="api-url">https://api.jcdecaux.com/vls/v1/stations?contract=nantes</span>
-      </div>
-      <span class="api-note">Clé gratuite</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-live">LIVE</span>
-      <div class="api-name">
-        <strong>OpenAgenda</strong> — Événements culturels
-        <span class="api-url">https://api.openagenda.com/v2/agendas/{id}/events</span>
-      </div>
-      <span class="api-note">Clé gratuite</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-live">LIVE</span>
-      <div class="api-name">
-        <strong>API Géo Gouv</strong> — Données INSEE
-        <span class="api-url">https://geo.api.gouv.fr/communes/44109</span>
-      </div>
-      <span class="api-note">Gratuit · Sans clé</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-live">LIVE</span>
-      <div class="api-name">
-        <strong>Wikipedia REST API</strong> — Résumé encyclopédique
-        <span class="api-url">https://fr.wikipedia.org/api/rest_v1/page/summary/Nantes</span>
-      </div>
-      <span class="api-note">Gratuit · Sans clé</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-static">STATIQUE</span>
-      <div class="api-name">
-        <strong>OpenStreetMap</strong> — Fond de carte
-        <span class="api-url">https://www.openstreetmap.org</span>
-      </div>
-      <span class="api-note">CC-BY-SA</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-key">CLÉ</span>
-      <div class="api-name">
-        <strong>TAN Temps Réel (SIRI)</strong> — Passages aux arrêts
-        <span class="api-url">https://open.tan.fr/ewp/arrets.json · GTFS disponible</span>
-      </div>
-      <span class="api-note">API gratuite</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-key">CLÉ</span>
-      <div class="api-name">
-        <strong>Data Nantes Métropole</strong> — Open data parkings, équipements
-        <span class="api-url">https://data.nantesmetropole.fr/api/explore/v2.1</span>
-      </div>
-      <span class="api-note">CKAN Open API</span>
-    </div>
-    <div class="api-item">
-      <span class="tag tag-key">CLÉ</span>
-      <div class="api-name">
-        <strong>ATMO Pays de la Loire</strong> — Capteurs pollution
-        <span class="api-url">https://data-atmo-paysdelaloire.opendatasoft.com</span>
-      </div>
-      <span class="api-note">Open data</span>
-    </div>
-  </div>
-</section>
 
-<!-- ══════════════════════════════════════
-     FOOTER
-══════════════════════════════════════ -->
-<footer class="footer">
-  <div>
-    <div class="footer-brand">Nantes</div>
-    <div class="footer-tagline">
-      Tableau de bord open data.<br>
-      Données publiques · Temps réel.<br>
-      Loire-Atlantique · France · 44000
+      <div class="meteo-hero">
+        <div class="meteo-icon" id="meteo-icon">⏳</div>
+        <div>
+          <div class="meteo-temp" id="meteo-temp">—°</div>
+          <div class="meteo-desc" id="meteo-desc">Chargement…</div>
+          <div class="meteo-time" id="meteo-time">—</div>
+        </div>
+      </div>
+
+      <div class="meteo-details-grid">
+        <div class="card"><div class="card-label">Ressenti</div><div class="card-val" id="meteo-feel">—</div></div>
+        <div class="card"><div class="card-label">Humidité</div><div class="card-val" id="meteo-humidity">—</div></div>
+        <div class="card"><div class="card-label">Vent</div><div class="card-val" id="meteo-wind">—</div><div class="card-sub" id="meteo-wind-dir">—</div></div>
+        <div class="card"><div class="card-label">Précipitations</div><div class="card-val" id="meteo-precip">—</div></div>
+        <div class="card"><div class="card-label">Nuages</div><div class="card-val" id="meteo-cloud">—</div></div>
+        <div class="card"><div class="card-label">Visibilité</div><div class="card-val" id="meteo-vis">—</div></div>
+        <div class="card"><div class="card-label">Indice UV</div><div class="card-val" id="meteo-uv">—</div></div>
+      </div>
+
+      <div class="forecast-label">PRÉVISIONS 7 JOURS</div>
+      <div class="cards" id="forecast-container">
+        <div class="card"><span class="loader"></span> Chargement…</div>
+      </div>
+    </section>
+
+    <!-- 02 — QUALITÉ DE L'AIR -->
+    <section class="section" id="air">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Qualité de l'air</h2>
+        <span class="section-source">open-meteo.com Air Quality</span>
+      </div>
+
+      <div class="cards" id="air-container">
+        <div class="card"><span class="loader"></span> Chargement…</div>
+      </div>
+
+      <div class="aqi-section" id="aqi-bar-section" style="display:none">
+        <div class="aqi-bar-label">INDICE DE QUALITÉ DE L'AIR (AQI EUROPÉEN)</div>
+        <div class="aqi-bar">
+          <div class="aqi-cursor" id="aqi-cursor" style="left:10%"></div>
+        </div>
+        <div class="aqi-scale">
+          <span>Bon</span><span>Acceptable</span><span>Modéré</span><span>Mauvais</span><span>Très mauvais</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 — TRANSPORTS -->
+    <section class="section" id="transports">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">Réseau TAN</h2>
+        <span class="section-source">data.nantesmetropole.fr</span>
+      </div>
+
+      <div class="transport-list">
+        <div class="transport-item">
+          <div class="transport-badge badge-tram">T1</div>
+          <div class="transport-name">François-Mitterrand ↔ Beaujoire</div>
+          <div class="transport-status status-ok">● En service</div>
+        </div>
+        <div class="transport-item">
+          <div class="transport-badge badge-tram">T2</div>
+          <div class="transport-name">Gare de Rezé ↔ Orvault Grand Val</div>
+          <div class="transport-status status-ok">● En service</div>
+        </div>
+        <div class="transport-item">
+          <div class="transport-badge badge-tram">T3</div>
+          <div class="transport-name">Marcel-Paul ↔ Neustrie</div>
+          <div class="transport-status status-ok">● En service</div>
+        </div>
+        <div class="transport-item">
+          <div class="transport-badge badge-busway">BW</div>
+          <div class="transport-name">Busway — Pôle Sud ↔ CHU Hôtel-Dieu</div>
+          <div class="transport-status status-ok">● En service</div>
+        </div>
+        <div class="transport-item">
+          <div class="transport-badge badge-navibus">⛵</div>
+          <div class="transport-name">Navibus Loire — Trentemoult ↔ Gare Maritime</div>
+          <div class="transport-status status-ok">● En service</div>
+        </div>
+        <div class="transport-item">
+          <div class="transport-badge badge-tram" style="background:var(--accent);color:var(--bg-base)">🚲</div>
+          <div class="transport-name">Bicloo — <span id="velo-total-stations">—</span> stations</div>
+          <div class="transport-status" id="velo-transport-status"><span class="loader"></span></div>
+        </div>
+      </div>
+
+      <div class="info-block">
+        ℹ️ Les horaires temps réel TAN nécessitent une clé API disponible sur
+        <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>.
+        Les données Bicloo ci-dessous sont en temps réel via l'API JCDecaux publique.
+      </div>
+    </section>
+
+    <!-- 04 — BICLOO -->
+    <section class="section" id="velos">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Bicloo en temps réel</h2>
+        <span class="section-source">api.jcdecaux.com</span>
+      </div>
+
+      <div class="cards" style="margin-bottom:1px">
+        <div class="card"><div class="card-label">Stations actives</div><div class="card-val" id="velo-stations">—</div></div>
+        <div class="card"><div class="card-label">Vélos disponibles</div><div class="card-val" id="velo-bikes">—</div></div>
+        <div class="card"><div class="card-label">Places libres</div><div class="card-val" id="velo-docks">—</div></div>
+        <div class="card"><div class="card-label">Taux d'occupation</div><div class="card-val" id="velo-rate">—</div></div>
+      </div>
+
+      <div class="velo-grid" id="velo-grid">
+        <div class="card" style="grid-column:1/-1"><span class="loader"></span> Chargement des stations…</div>
+      </div>
+    </section>
+
+    <!-- 05 — AGENDA -->
+    <section class="section" id="agenda">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">Agenda Nantais</h2>
+        <span class="section-source">api.openagenda.com</span>
+      </div>
+
+      <div class="event-list" id="agenda-container">
+        <div class="event-item">
+          <div class="event-date">—</div>
+          <div><span class="loader"></span> Chargement…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 — NANTES EN CHIFFRES -->
+    <section class="section" id="ville">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">Nantes en chiffres</h2>
+        <span class="section-source">geo.api.gouv.fr · INSEE</span>
+      </div>
+
+      <div class="big-stats">
+        <div class="big-stat"><div class="big-stat-val" id="ville-pop">—</div><div class="big-stat-label">Habitants</div></div>
+        <div class="big-stat"><div class="big-stat-val">44000</div><div class="big-stat-label">Code postal</div></div>
+        <div class="big-stat"><div class="big-stat-val" id="ville-surface">—</div><div class="big-stat-label">km² superficie</div></div>
+        <div class="big-stat"><div class="big-stat-val">6ème</div><div class="big-stat-label">Ville de France</div></div>
+        <div class="big-stat"><div class="big-stat-val">24</div><div class="big-stat-label">Communes métropole</div></div>
+        <div class="big-stat"><div class="big-stat-val">650 000</div><div class="big-stat-label">Hab. métropole</div></div>
+        <div class="big-stat"><div class="big-stat-val">47°N</div><div class="big-stat-label">Latitude</div></div>
+        <div class="big-stat"><div class="big-stat-val">Loire</div><div class="big-stat-label">Fleuve</div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="two-col-block">
+          <div class="card-label" style="margin-bottom:1rem">CODES & IDENTIFIANTS</div>
+          <div id="ville-codes"><span class="loader"></span></div>
+        </div>
+        <div class="two-col-block">
+          <div class="card-label" style="margin-bottom:1rem">GÉOGRAPHIE</div>
+          <div id="ville-geo"><span class="loader"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 — WIKIPEDIA -->
+    <section class="section" id="wiki">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2 class="section-title">Extrait Wikipedia</h2>
+        <span class="section-source">fr.wikipedia.org/api</span>
+      </div>
+
+      <div class="wiki-block">
+        <div class="wiki-content" id="wiki-content"><span class="loader"></span> Chargement…</div>
+        <div class="wiki-meta" id="wiki-meta"></div>
+      </div>
+    </section>
+
+    <!-- 08 — ASTRONOMIE -->
+    <section class="section" id="astronomie">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2 class="section-title">Soleil &amp; Astronomie</h2>
+        <span class="section-source">open-meteo.com</span>
+      </div>
+
+      <div class="cards" id="sun-container">
+        <div class="card"><span class="loader"></span></div>
+      </div>
+    </section>
+
+    <!-- 09 — CARTE -->
+    <section class="section" id="carte">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2 class="section-title">Carte</h2>
+        <span class="section-source">OpenStreetMap</span>
+      </div>
+
+      <div class="map-frame">
+        <iframe
+          src="https://www.openstreetmap.org/export/embed.html?bbox=-1.6500%2C47.1700%2C-1.4500%2C47.2800&layer=mapnik&marker=47.2184%2C-1.5536"
+          allowfullscreen loading="lazy" title="Carte de Nantes — OpenStreetMap">
+        </iframe>
+      </div>
+      <div class="map-credit">
+        © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>
+      </div>
+    </section>
+
+    <!-- 10 — APIs -->
+    <section class="section" id="apis">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <h2 class="section-title">APIs utilisées</h2>
+      </div>
+
+      <div class="api-list">
+        <div class="api-item">
+          <span class="tag tag-live">LIVE</span>
+          <div class="api-name">
+            <strong>Open-Meteo</strong>
+            <span class="api-url">https://api.open-meteo.com/v1/forecast · Météo, qualité de l'air, astronomie</span>
+          </div>
+          <span class="api-note">Gratuit · Sans clé</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-live">LIVE</span>
+          <div class="api-name">
+            <strong>JCDecaux Bicloo</strong>
+            <span class="api-url">https://api.jcdecaux.com/vls/v1/stations?contract=nantes</span>
+          </div>
+          <span class="api-note">Clé gratuite</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-live">LIVE</span>
+          <div class="api-name">
+            <strong>OpenAgenda</strong>
+            <span class="api-url">https://api.openagenda.com/v2/agendas/{id}/events · Événements culturels</span>
+          </div>
+          <span class="api-note">Clé gratuite</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-live">LIVE</span>
+          <div class="api-name">
+            <strong>API Géo Gouv</strong>
+            <span class="api-url">https://geo.api.gouv.fr/communes/44109 · Données INSEE</span>
+          </div>
+          <span class="api-note">Gratuit · Sans clé</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-live">LIVE</span>
+          <div class="api-name">
+            <strong>Wikipedia REST API</strong>
+            <span class="api-url">https://fr.wikipedia.org/api/rest_v1/page/summary/Nantes</span>
+          </div>
+          <span class="api-note">Gratuit · Sans clé</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-static">STATIQUE</span>
+          <div class="api-name">
+            <strong>OpenStreetMap</strong>
+            <span class="api-url">https://www.openstreetmap.org · Fond de carte CC-BY-SA</span>
+          </div>
+          <span class="api-note">CC-BY-SA</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-key">CLÉ</span>
+          <div class="api-name">
+            <strong>TAN Temps Réel (SIRI)</strong>
+            <span class="api-url">https://open.tan.fr/ewp/arrets.json · Passages aux arrêts</span>
+          </div>
+          <span class="api-note">API gratuite</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-key">CLÉ</span>
+          <div class="api-name">
+            <strong>Data Nantes Métropole</strong>
+            <span class="api-url">https://data.nantesmetropole.fr/api/explore/v2.1 · Parkings, équipements</span>
+          </div>
+          <span class="api-note">CKAN Open API</span>
+        </div>
+        <div class="api-item">
+          <span class="tag tag-key">CLÉ</span>
+          <div class="api-name">
+            <strong>ATMO Pays de la Loire</strong>
+            <span class="api-url">https://data-atmo-paysdelaloire.opendatasoft.com · Capteurs pollution</span>
+          </div>
+          <span class="api-note">Open data</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div>
+        <div class="footer-brand">Nantes</div>
+        <div class="footer-tagline">
+          Tableau de bord open data.<br>
+          Données publiques · Temps réel.<br>
+          Loire-Atlantique · France · 44000
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Données ouvertes</h4>
+        <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>
+        <a href="https://open.tan.fr" target="_blank">open.tan.fr</a>
+        <a href="https://data-atmo-paysdelaloire.opendatasoft.com" target="_blank">ATMO Pays de la Loire</a>
+        <a href="https://geo.api.gouv.fr" target="_blank">geo.api.gouv.fr</a>
+      </div>
+      <div class="footer-col">
+        <h4>APIs utilisées</h4>
+        <a href="https://open-meteo.com" target="_blank">Open-Meteo</a>
+        <a href="https://developer.jcdecaux.com" target="_blank">JCDecaux API</a>
+        <a href="https://openagenda.com" target="_blank">OpenAgenda</a>
+        <a href="https://fr.wikipedia.org/api/rest_v1/" target="_blank">Wikipedia REST API</a>
+      </div>
+      <div class="footer-col">
+        <h4>Nantes · 44000</h4>
+        <a href="https://www.nantes.fr" target="_blank">nantes.fr</a>
+        <a href="https://metropole.nantes.fr" target="_blank">Nantes Métropole</a>
+        <a href="https://www.tan.fr" target="_blank">Réseau TAN</a>
+        <a href="https://www.bicloo.nantesmetropole.fr" target="_blank">Bicloo</a>
+      </div>
+    </footer>
+
+    <div class="footer-bottom">
+      <span>Tableau de bord · Données publiques · Open Source</span>
+      <span><span class="live-dot"></span> Données actualisées en temps réel</span>
     </div>
-  </div>
 
-  <div class="footer-col">
-    <h4>Données ouvertes</h4>
-    <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>
-    <a href="https://open.tan.fr" target="_blank">open.tan.fr</a>
-    <a href="https://data-atmo-paysdelaloire.opendatasoft.com" target="_blank">ATMO Pays de la Loire</a>
-    <a href="https://geo.api.gouv.fr" target="_blank">geo.api.gouv.fr</a>
-  </div>
+  </main>
+</div><!-- /layout -->
 
-  <div class="footer-col">
-    <h4>APIs utilisées</h4>
-    <a href="https://open-meteo.com" target="_blank">Open-Meteo</a>
-    <a href="https://developer.jcdecaux.com" target="_blank">JCDecaux API</a>
-    <a href="https://openagenda.com" target="_blank">OpenAgenda</a>
-    <a href="https://fr.wikipedia.org/api/rest_v1/" target="_blank">Wikipedia REST API</a>
-  </div>
+<script>
+  /* ═══════════════════════════════════════
+     THÈME
+  ═══════════════════════════════════════ */
+  const root = document.documentElement;
+  const savedTheme = localStorage.getItem('nantes-theme') || 'nuit';
+  root.setAttribute('data-theme', savedTheme);
 
-  <div class="footer-col">
-    <h4>Nantes · 44000</h4>
-    <a href="https://www.nantes.fr" target="_blank">nantes.fr</a>
-    <a href="https://metropole.nantes.fr" target="_blank">Nantes Métropole</a>
-    <a href="https://www.tan.fr" target="_blank">Réseau TAN</a>
-    <a href="https://www.bicloo.nantesmetropole.fr" target="_blank">Bicloo</a>
-  </div>
-</footer>
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    if (btn.dataset.t === savedTheme) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.t;
+      root.setAttribute('data-theme', t);
+      localStorage.setItem('nantes-theme', t);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+    });
+  });
 
-<div class="footer-bottom">
-  <span>Tableau de bord · Données publiques · Open Source</span>
-  <span><span class="live-dot"></span> Données actualisées en temps réel</span>
-</div>
+  /* ═══════════════════════════════════════
+     SIDEBAR MOBILE
+  ═══════════════════════════════════════ */
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('overlay');
+  const hamburger = document.getElementById('hamburger');
 
-<!-- ══════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════ -->
-<script src="js/theme.js"></script>
+  function openSidebar()  { sidebar.classList.add('open');  overlay.classList.add('open'); }
+  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
+
+  hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', closeSidebar));
+
+  /* ═══════════════════════════════════════
+     NAV ACTIVE ON SCROLL
+  ═══════════════════════════════════════ */
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+<!-- Tes scripts existants vont ici -->
 <script src="js/main.js"></script>
+
 </body>
 </html>
