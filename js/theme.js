@@ -1,45 +1,36 @@
-/* ═══════════════════════════════════════
-   THÈME : JOUR — Light papier
-   ═══════════════════════════════════════ */
+// js/theme.js
+const THEMES = ['nuit', 'jour', 'aube', 'foret'];
 
-[data-theme="jour"] {
-  /* Backgrounds */
-  --bg-base:       #f5f2ec;
-  --nav-bg:        rgba(245, 242, 236, 0.93);
-  --card-bg:       #faf8f4;
-  --card-hover:    #f0ede5;
-  --hover-bg:      rgba(0,0,0,0.03);
+const labels = {
+  nuit:  '🌙 Nuit',
+  jour:  '☀️ Jour',
+  aube:  '🌅 Aube',
+  foret: '🌿 Forêt',
+};
 
-  /* Borders */
-  --border:        #ddd9d0;
-
-  /* Text */
-  --text-primary:  #1a1814;
-  --text-secondary:#4a4640;
-  --text-muted:    #9a9690;
-
-  /* Accent — encre terracotta */
-  --accent:        #b84a2e;
-  --accent-contrast:#faf8f4;
-
-  /* Status */
-  --status-ok:     #1a8c5b;
-  --status-warn:   #c47d0f;
-  --status-err:    #c0392b;
-
-  /* Transport badges */
-  --badge-tram-bg:  #1a8c5b;
-  --badge-tram-text:#ffffff;
-  --badge-bus-bg:   #1e5a9e;
-  --badge-bus-text: #ffffff;
-
-  /* Hero FX */
-  --glow-a:        rgba(184, 74, 46, 0.06);
-  --glow-b:        rgba(26, 140, 91, 0.04);
-  --title-gradient: linear-gradient(150deg, #1a1814 30%, #b84a2e);
-  --grid-pattern:  repeating-linear-gradient(0deg, transparent, transparent 47px, #ddd9d0 47px, #ddd9d0 48px),
-                   repeating-linear-gradient(90deg, transparent, transparent 47px, #ddd9d0 47px, #ddd9d0 48px);
-
-  /* Map filter — none for light */
-  --map-filter:    none;
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === theme);
+  });
 }
+
+function initTheme() {
+  // Injecte les boutons dans #theme-switcher
+  const switcher = document.getElementById('theme-switcher');
+  THEMES.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'theme-btn';
+    btn.dataset.theme = t;
+    btn.textContent = labels[t];
+    btn.onclick = () => setTheme(t);
+    switcher.appendChild(btn);
+  });
+
+  // Restaure le thème sauvegardé ou garde nuit par défaut
+  const saved = localStorage.getItem('theme') || 'nuit';
+  setTheme(saved);
+}
+
+initTheme();
