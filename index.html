@@ -3,416 +3,438 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NANTES · Tableau de Bord Urbain</title>
-  <meta name="description" content="Tableau de bord urbain temps réel — Nantes Métropole. Météo, air, transports, vélos, événements, parkings, données INSEE.">
+  <title>Nantes — Tableau de Bord</title>
+  <meta name="description" content="Tableau de bord en temps réel de la ville de Nantes : météo, transports, qualité de l'air, vélos Bicloo, agenda culturel.">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Themes (chargés en premier, avant main.css) -->
+  <link rel="stylesheet" href="css/nuit.css">
+  <link rel="stylesheet" href="css/jour.css">
+  <link rel="stylesheet" href="css/aube.css">
+  <link rel="stylesheet" href="css/foret.css">
+
+  <!-- Styles principaux -->
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 
-<!-- ═══ CURSOR GLOW ═══ -->
-<div class="cursor-glow" id="cursor-glow"></div>
-
-<!-- ═══ HERO ═══ -->
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
 <section class="hero">
-  <canvas class="hero-canvas" id="hero-canvas"></canvas>
-  <div class="hero-inner">
-    <div class="hero-eyebrow">
-      <span class="live-pulse"></span>
-      <span class="hero-eyebrow-text">TABLEAU DE BORD URBAIN · TEMPS RÉEL</span>
-    </div>
-    <h1 class="hero-title">
-      <span class="hero-title-line">NANTES</span>
-      <span class="hero-title-sub">44° LOIRE-ATLANTIQUE</span>
-    </h1>
-    <div class="hero-meta">
-      <div class="hero-clock" id="hero-clock">--:--:--</div>
-      <div class="hero-date" id="hero-date">---</div>
-    </div>
-    <div class="hero-stats-bar">
-      <div class="hstat" id="h-temp">— °C <span>Temp.</span></div>
-      <div class="hstat-sep">|</div>
-      <div class="hstat" id="h-aqi">— <span>AQI</span></div>
-      <div class="hstat-sep">|</div>
-      <div class="hstat" id="h-bikes">— <span>Vélos</span></div>
-      <div class="hstat-sep">|</div>
-      <div class="hstat" id="h-sunrise">— <span>Lever</span></div>
-    </div>
-  </div>
-  <div class="hero-scroll">EXPLORER ↓</div>
+  <div class="hero-bg"></div>
+  <div class="hero-badge">Tableau de bord en temps réel</div>
+  <h1 class="hero-title">NANTES</h1>
+  <p class="hero-sub">
+    <span class="live-dot"></span>
+    Données publiques · Loire-Atlantique · France
+  </p>
+  <div class="scroll-cue">↓ EXPLORER</div>
 </section>
 
-<!-- ═══ NAVBAR ═══ -->
-<nav class="navbar" id="navbar">
-  <div class="navbar-brand">NTS<span>44</span></div>
-  <div class="navbar-links">
-    <a href="#meteo">🌤 Météo</a>
-    <a href="#air">💨 Air</a>
-    <a href="#transports">🚊 Transports</a>
-    <a href="#velos">🚲 Bicloo</a>
-    <a href="#parkings">🅿️ Parkings</a>
-    <a href="#agenda">📅 Agenda</a>
-    <a href="#ville">🏙 Ville</a>
-    <a href="#astronomie">🌅 Soleil</a>
-    <a href="#wiki">📖 Wiki</a>
-    <a href="#carte">🗺 Carte</a>
+<!-- ══════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-links">
+    <a href="#meteo"><span class="nav-icon">🌤</span> Météo</a>
+    <a href="#air"><span class="nav-icon">💨</span> Air</a>
+    <a href="#transports"><span class="nav-icon">🚊</span> Transports</a>
+    <a href="#velos"><span class="nav-icon">🚲</span> Vélos</a>
+    <a href="#agenda"><span class="nav-icon">📅</span> Agenda</a>
+    <a href="#ville"><span class="nav-icon">🏙</span> Ville</a>
+    <a href="#wiki"><span class="nav-icon">📖</span> Wikipedia</a>
+    <a href="#astronomie"><span class="nav-icon">🌅</span> Soleil</a>
+    <a href="#carte"><span class="nav-icon">🗺</span> Carte</a>
+    <a href="#apis"><span class="nav-icon">🔌</span> APIs</a>
   </div>
-  <div class="navbar-theme">
-    <button class="theme-btn active" data-theme="nuit" title="Nuit">🌑</button>
-    <button class="theme-btn" data-theme="jour" title="Jour">☀️</button>
-    <button class="theme-btn" data-theme="aube" title="Aube">🌅</button>
+  <div class="theme-switcher" id="theme-switcher">
+    <!-- injecté par theme.js -->
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════
-     01 · MÉTÉO
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     01 — MÉTÉO
+══════════════════════════════════════ -->
 <section class="section" id="meteo">
-  <div class="section-label">
-    <span class="sect-num">01</span>
-    <span class="sect-title">MÉTÉO EN DIRECT</span>
-    <span class="sect-source">open-meteo.com · sans clé</span>
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Météo en direct</h2>
+    <span class="section-source">SOURCE · open-meteo.com</span>
   </div>
 
-  <div class="meteo-hero-block">
-    <div class="meteo-icon-giant" id="meteo-icon">⏳</div>
-    <div class="meteo-hero-info">
-      <div class="meteo-temp-giant" id="meteo-temp">—°</div>
-      <div class="meteo-desc-big" id="meteo-desc">Chargement…</div>
-      <div class="meteo-feels">Ressenti <strong id="meteo-feel">—</strong> · Humidité <strong id="meteo-humidity">—</strong></div>
+  <div class="meteo-grid" id="meteo-grid">
+    <div class="meteo-main">
+      <div class="meteo-icon" id="meteo-icon">⏳</div>
+      <div class="meteo-info">
+        <div class="meteo-temp" id="meteo-temp">—°</div>
+        <div class="meteo-desc" id="meteo-desc">Chargement…</div>
+        <div class="meteo-time" id="meteo-time">—</div>
+      </div>
+      <div class="meteo-coords">
+        Nantes · 47.22°N 1.55°O<br>
+        Europe/Paris
+      </div>
     </div>
-    <div class="meteo-right-col">
-      <div class="mstat"><span>💨 Vent</span><strong><span id="meteo-wind">—</span> <small id="meteo-wdir">—</small></strong></div>
-      <div class="mstat"><span>🌧 Précipitations</span><strong id="meteo-precip">—</strong></div>
-      <div class="mstat"><span>☁️ Nuages</span><strong id="meteo-cloud">—</strong></div>
-      <div class="mstat"><span>👁 Visibilité</span><strong id="meteo-vis">—</strong></div>
-      <div class="mstat"><span>☀️ UV</span><strong id="meteo-uv">—</strong></div>
-      <div class="mstat"><span>🕐 Mis à jour</span><strong id="meteo-time" style="font-size:0.7rem">—</strong></div>
+    <div class="meteo-detail"><div class="card-label">Ressenti</div><div class="card-val" id="meteo-feel">—</div></div>
+    <div class="meteo-detail"><div class="card-label">Humidité</div><div class="card-val" id="meteo-humidity">—</div></div>
+    <div class="meteo-detail"><div class="card-label">Vent</div><div class="card-val" id="meteo-wind">—</div><div class="card-sub" id="meteo-wind-dir">—</div></div>
+    <div class="meteo-detail"><div class="card-label">Précipitations</div><div class="card-val" id="meteo-precip">—</div></div>
+    <div class="meteo-detail"><div class="card-label">Couverture nuageuse</div><div class="card-val" id="meteo-cloud">—</div></div>
+    <div class="meteo-detail"><div class="card-label">Visibilité</div><div class="card-val" id="meteo-vis">—</div></div>
+    <div class="meteo-detail"><div class="card-label">Indice UV</div><div class="card-val" id="meteo-uv">—</div></div>
+  </div>
+
+  <!-- Prévisions 7 jours -->
+  <div style="margin-top:1px">
+    <div style="font-size:0.52rem;letter-spacing:0.22em;color:var(--text-muted);padding:1rem 0 0.5rem;border-top:1px solid var(--border)">
+      PRÉVISIONS 7 JOURS
     </div>
-  </div>
-
-  <div class="subsection-label">PRÉVISIONS 7 JOURS</div>
-  <div class="forecast-strip" id="forecast-container">
-    <div class="fcard skeleton">Chargement…</div>
-  </div>
-
-  <div class="subsection-label" style="margin-top:2rem">PRÉVISIONS HORAIRES (24H)</div>
-  <div class="hourly-strip" id="hourly-container">
-    <div class="hcard skeleton">⏳</div>
+    <div class="cards" id="forecast-container">
+      <div class="card"><span class="loader"></span> Chargement…</div>
+    </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     02 · QUALITÉ DE L'AIR
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     02 — QUALITÉ DE L'AIR
+══════════════════════════════════════ -->
 <section class="section" id="air">
-  <div class="section-label">
-    <span class="sect-num">02</span>
-    <span class="sect-title">QUALITÉ DE L'AIR</span>
-    <span class="sect-source">open-meteo.com Air Quality</span>
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Qualité de l'air</h2>
+    <span class="section-source">SOURCE · open-meteo.com Air Quality</span>
   </div>
 
-  <div class="aqi-big-block">
-    <div class="aqi-gauge-wrap">
-      <canvas id="aqi-gauge" width="200" height="120"></canvas>
-      <div class="aqi-gauge-val" id="aqi-val">—</div>
-      <div class="aqi-gauge-label" id="aqi-label">—</div>
-    </div>
-    <div class="aqi-grid" id="air-container">
-      <div class="aqi-card skeleton">Chargement…</div>
-    </div>
+  <div class="cards" id="air-container">
+    <div class="card"><span class="loader"></span> Chargement…</div>
   </div>
 
-  <div class="aqi-rainbow">
-    <div class="aqi-rainbow-bar">
-      <div class="aqi-cursor-new" id="aqi-cursor"></div>
+  <div class="aqi-bar-section" id="aqi-bar-section" style="display:none">
+    <div class="aqi-bar-label">INDICE DE QUALITÉ DE L'AIR (AQI EUROPÉEN)</div>
+    <div class="aqi-bar">
+      <div class="aqi-cursor" id="aqi-cursor" style="left:10%"></div>
     </div>
-    <div class="aqi-rainbow-scale">
-      <span>Bon<br>0–20</span>
-      <span>Acceptable<br>20–40</span>
-      <span>Modéré<br>40–60</span>
-      <span>Mauvais<br>60–80</span>
-      <span>Très mauvais<br>80+</span>
+    <div class="aqi-scale">
+      <span>Bon</span><span>Acceptable</span><span>Modéré</span><span>Mauvais</span><span>Très mauvais</span>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     03 · TRANSPORTS TAN
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     03 — TRANSPORTS
+══════════════════════════════════════ -->
 <section class="section" id="transports">
-  <div class="section-label">
-    <span class="sect-num">03</span>
-    <span class="sect-title">RÉSEAU NAOLIB · TAN</span>
-    <span class="sect-source">open.tan.fr · data.nantesmetropole.fr</span>
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Réseau TAN</h2>
+    <span class="section-source">SOURCE · data.nantesmetropole.fr</span>
   </div>
 
-  <div class="transport-network">
-    <div class="transport-lines" id="transport-lines">
-      <!-- injected by JS -->
+  <div class="transport-list">
+    <div class="transport-item">
+      <div class="transport-badge badge-tram">T1</div>
+      <div class="transport-name">François-Mitterrand ↔ Beaujoire</div>
+      <div class="transport-status status-ok">● En service</div>
     </div>
-    <div class="perturbations-block" id="perturbations">
-      <div class="pert-header">⚠️ INFO-TRAFIC EN COURS</div>
-      <div id="pert-list"><div class="skeleton-line"></div><div class="skeleton-line"></div></div>
+    <div class="transport-item">
+      <div class="transport-badge badge-tram">T2</div>
+      <div class="transport-name">Gare de Rezé ↔ Orvault Grand Val</div>
+      <div class="transport-status status-ok">● En service</div>
+    </div>
+    <div class="transport-item">
+      <div class="transport-badge badge-tram">T3</div>
+      <div class="transport-name">Marcel-Paul ↔ Neustrie</div>
+      <div class="transport-status status-ok">● En service</div>
+    </div>
+    <div class="transport-item">
+      <div class="transport-badge badge-busway">BW</div>
+      <div class="transport-name">Busway — Pôle Sud ↔ CHU Hôtel-Dieu</div>
+      <div class="transport-status status-ok">● En service</div>
+    </div>
+    <div class="transport-item">
+      <div class="transport-badge badge-navibus">⛵</div>
+      <div class="transport-name">Navibus Loire — Trentemoult ↔ Gare Maritime</div>
+      <div class="transport-status status-ok">● En service</div>
+    </div>
+    <div class="transport-item">
+      <div class="transport-badge badge-tram" style="background:var(--accent);color:var(--bg-base)">🚲</div>
+      <div class="transport-name">Bicloo — <span id="velo-total-stations">—</span> stations</div>
+      <div class="transport-status" id="velo-transport-status"><span class="loader"></span></div>
     </div>
   </div>
 
-  <div class="tan-stops-block">
-    <div class="subsection-label">PROCHAINS PASSAGES — ARRÊTS CLÉ</div>
-    <div class="stops-grid" id="stops-grid">
-      <!-- injected by JS -->
-    </div>
+  <div class="info-block">
+    ℹ️ Les horaires temps réel TAN nécessitent une clé API disponible sur
+    <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>.
+    Les données Bicloo ci-dessous sont en temps réel via l'API JCDecaux publique.
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     04 · BICLOO
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     04 — VÉLOS BICLOO
+══════════════════════════════════════ -->
 <section class="section" id="velos">
-  <div class="section-label">
-    <span class="sect-num">04</span>
-    <span class="sect-title">BICLOO · VÉLOS EN LIBRE-SERVICE</span>
-    <span class="sect-source">api.jcdecaux.com · clé gratuite requise</span>
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Bicloo en temps réel</h2>
+    <span class="section-source">SOURCE · api.jcdecaux.com</span>
   </div>
 
-  <div class="velo-summary">
-    <div class="vsum-card" id="velo-stations-card">
-      <div class="vsum-num" id="velo-stations">—</div>
-      <div class="vsum-lbl">Stations actives</div>
-    </div>
-    <div class="vsum-card">
-      <div class="vsum-num" id="velo-bikes">—</div>
-      <div class="vsum-lbl">Vélos disponibles</div>
-    </div>
-    <div class="vsum-card">
-      <div class="vsum-num" id="velo-docks">—</div>
-      <div class="vsum-lbl">Places libres</div>
-    </div>
-    <div class="vsum-card">
-      <div class="vsum-num" id="velo-ebikes">—</div>
-      <div class="vsum-lbl">Vélos électriques</div>
-    </div>
-    <div class="vsum-card">
-      <div class="vsum-num" id="velo-rate">—</div>
-      <div class="vsum-lbl">Taux remplissage</div>
-    </div>
+  <div class="cards" style="margin-bottom:1px">
+    <div class="card"><div class="card-label">Stations actives</div><div class="card-val" id="velo-stations">—</div></div>
+    <div class="card"><div class="card-label">Vélos disponibles</div><div class="card-val" id="velo-bikes">—</div></div>
+    <div class="card"><div class="card-label">Places libres</div><div class="card-val" id="velo-docks">—</div></div>
+    <div class="card"><div class="card-label">Taux d'occupation</div><div class="card-val" id="velo-rate">—</div></div>
   </div>
 
   <div class="velo-grid" id="velo-grid">
-    <div class="skeleton-card">Chargement des stations…</div>
+    <div class="card" style="grid-column:1/-1"><span class="loader"></span> Chargement des stations…</div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     05 · PARKINGS
-═══════════════════════════════════ -->
-<section class="section" id="parkings">
-  <div class="section-label">
-    <span class="sect-num">05</span>
-    <span class="sect-title">PARKINGS EN TEMPS RÉEL</span>
-    <span class="sect-source">data.nantesmetropole.fr · API v2.1</span>
-  </div>
-
-  <div class="parkings-grid" id="parkings-grid">
-    <div class="skeleton-card">Chargement des parkings…</div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     06 · AGENDA
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     05 — AGENDA
+══════════════════════════════════════ -->
 <section class="section" id="agenda">
-  <div class="section-label">
-    <span class="sect-num">06</span>
-    <span class="sect-title">AGENDA NANTAIS</span>
-    <span class="sect-source">api.openagenda.com · clé gratuite requise</span>
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">Agenda Nantais</h2>
+    <span class="section-source">SOURCE · api.openagenda.com</span>
   </div>
 
-  <div class="events-list" id="agenda-container">
-    <div class="event-skeleton"></div>
-    <div class="event-skeleton"></div>
-    <div class="event-skeleton"></div>
+  <div class="event-list" id="agenda-container">
+    <div class="event-item">
+      <div class="event-date">—</div>
+      <div><span class="loader"></span> Chargement…</div>
+    </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     07 · NANTES EN CHIFFRES
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     06 — NANTES EN CHIFFRES
+══════════════════════════════════════ -->
 <section class="section" id="ville">
-  <div class="section-label">
-    <span class="sect-num">07</span>
-    <span class="sect-title">NANTES EN CHIFFRES</span>
-    <span class="sect-source">geo.api.gouv.fr · INSEE · data.nantesmetropole.fr</span>
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">Nantes en chiffres</h2>
+    <span class="section-source">SOURCE · geo.api.gouv.fr · INSEE</span>
   </div>
 
-  <div class="big-numbers-ticker" id="ville-numbers">
-    <div class="bnum"><div class="bnum-val" id="ville-pop">—</div><div class="bnum-lbl">Habitants</div></div>
-    <div class="bnum"><div class="bnum-val" id="ville-surface">—</div><div class="bnum-lbl">km²</div></div>
-    <div class="bnum"><div class="bnum-val" id="ville-density">—</div><div class="bnum-lbl">hab/km²</div></div>
-    <div class="bnum"><div class="bnum-val">6ème</div><div class="bnum-lbl">Ville de France</div></div>
-    <div class="bnum"><div class="bnum-val">24</div><div class="bnum-lbl">Communes métropole</div></div>
-    <div class="bnum"><div class="bnum-val">650 000</div><div class="bnum-lbl">Habitants métropole</div></div>
-    <div class="bnum"><div class="bnum-val">44000</div><div class="bnum-lbl">Code postal</div></div>
-    <div class="bnum"><div class="bnum-val">Loire</div><div class="bnum-lbl">Fleuve</div></div>
+  <div class="big-stats">
+    <div class="big-stat"><div class="big-stat-val" id="ville-pop">—</div><div class="big-stat-label">Habitants</div></div>
+    <div class="big-stat"><div class="big-stat-val">44000</div><div class="big-stat-label">Code postal</div></div>
+    <div class="big-stat"><div class="big-stat-val" id="ville-surface">—</div><div class="big-stat-label">km² superficie</div></div>
+    <div class="big-stat"><div class="big-stat-val">6ème</div><div class="big-stat-label">Ville de France</div></div>
+    <div class="big-stat"><div class="big-stat-val">24</div><div class="big-stat-label">Communes métropole</div></div>
+    <div class="big-stat"><div class="big-stat-val">650 000</div><div class="big-stat-label">Habitants métropole</div></div>
+    <div class="big-stat"><div class="big-stat-val">47°N</div><div class="big-stat-label">Latitude</div></div>
+    <div class="big-stat"><div class="big-stat-val">Loire</div><div class="big-stat-label">Fleuve</div></div>
   </div>
 
-  <div class="ville-detail-grid">
-    <div class="vd-block">
-      <div class="vd-title">CODES & IDENTIFIANTS</div>
-      <div id="ville-codes" class="vd-content"><div class="skeleton-line"></div></div>
+  <div class="two-col">
+    <div class="two-col-block">
+      <div class="card-label" style="margin-bottom:1rem">CODES &amp; IDENTIFIANTS</div>
+      <div id="ville-codes"><span class="loader"></span></div>
     </div>
-    <div class="vd-block">
-      <div class="vd-title">GÉOGRAPHIE</div>
-      <div id="ville-geo" class="vd-content"><div class="skeleton-line"></div></div>
-    </div>
-    <div class="vd-block">
-      <div class="vd-title">QUARTIERS</div>
-      <div class="vd-content">
-        <div class="quartier-tag">Île de Nantes</div>
-        <div class="quartier-tag">Erdre</div>
-        <div class="quartier-tag">Bottière-Chénaie</div>
-        <div class="quartier-tag">Malakoff</div>
-        <div class="quartier-tag">Saint-Félix</div>
-        <div class="quartier-tag">Centre-ville</div>
-        <div class="quartier-tag">Zola</div>
-        <div class="quartier-tag">Bellevue</div>
-        <div class="quartier-tag">Breil-Barberie</div>
-        <div class="quartier-tag">Dervallières</div>
-      </div>
-    </div>
-    <div class="vd-block">
-      <div class="vd-title">LABELS & DISTINCTIONS</div>
-      <div class="vd-content">
-        <div class="label-tag gold">🏆 Capitale Verte Européenne 2013</div>
-        <div class="label-tag">🎭 Ville créative UNESCO · Design</div>
-        <div class="label-tag">🌿 Territoire à énergie positive</div>
-        <div class="label-tag">🚲 Ville cyclable — Vélo d'Or</div>
-        <div class="label-tag">🎪 3ème pôle touristique français</div>
-      </div>
+    <div class="two-col-block">
+      <div class="card-label" style="margin-bottom:1rem">GÉOGRAPHIE</div>
+      <div id="ville-geo"><span class="loader"></span></div>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     08 · SOLEIL & ASTRONOMIE
-═══════════════════════════════════ -->
-<section class="section" id="astronomie">
-  <div class="section-label">
-    <span class="sect-num">08</span>
-    <span class="sect-title">SOLEIL & ASTRONOMIE</span>
-    <span class="sect-source">open-meteo.com · sunrise-sunset.org</span>
-  </div>
-
-  <div class="sun-visual" id="sun-visual">
-    <canvas id="sun-arc" width="600" height="200"></canvas>
-    <div class="sun-cards" id="sun-container">
-      <div class="skeleton-card">⏳</div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════
-     09 · WIKIPEDIA
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     07 — WIKIPEDIA
+══════════════════════════════════════ -->
 <section class="section" id="wiki">
-  <div class="section-label">
-    <span class="sect-num">09</span>
-    <span class="sect-title">EXTRAIT WIKIPEDIA</span>
-    <span class="sect-source">fr.wikipedia.org/api</span>
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title">Extrait Wikipedia</h2>
+    <span class="section-source">SOURCE · fr.wikipedia.org/api</span>
   </div>
 
-  <div class="wiki-layout">
-    <div class="wiki-text-block">
-      <div class="wiki-dropcap" id="wiki-content">Chargement…</div>
-      <div class="wiki-meta" id="wiki-meta"></div>
+  <div class="wiki-block">
+    <div class="wiki-content" id="wiki-content">
+      <span class="loader"></span> Chargement…
     </div>
-    <div class="wiki-img-block" id="wiki-img-block">
-      <img id="wiki-img" src="" alt="Nantes" style="display:none">
-    </div>
+    <div class="wiki-meta" id="wiki-meta"></div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     10 · CARTE
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     08 — ASTRONOMIE
+══════════════════════════════════════ -->
+<section class="section" id="astronomie">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title">Soleil &amp; Astronomie</h2>
+    <span class="section-source">SOURCE · open-meteo.com</span>
+  </div>
+
+  <div class="cards" id="sun-container">
+    <div class="card"><span class="loader"></span></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     09 — CARTE
+══════════════════════════════════════ -->
 <section class="section" id="carte">
-  <div class="section-label">
-    <span class="sect-num">10</span>
-    <span class="sect-title">CARTE INTERACTIVE</span>
-    <span class="sect-source">OpenStreetMap · CC-BY-SA</span>
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2 class="section-title">Carte</h2>
+    <span class="section-source">SOURCE · OpenStreetMap</span>
   </div>
 
-  <div class="map-container">
-    <div class="map-tabs">
-      <button class="map-tab active" data-layer="mapnik">Vue Standard</button>
-      <button class="map-tab" data-layer="cycle">Pistes Cyclables</button>
-      <button class="map-tab" data-layer="transport">Transports</button>
-    </div>
-    <div class="map-frame-wrap">
-      <iframe id="map-iframe"
-        src="https://www.openstreetmap.org/export/embed.html?bbox=-1.6500%2C47.1700%2C-1.4500%2C47.2800&layer=mapnik&marker=47.2184%2C-1.5536"
-        allowfullscreen loading="lazy" title="Carte Nantes">
-      </iframe>
-    </div>
-    <div class="map-credit">© <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a></div>
+  <div class="map-frame">
+    <iframe
+      src="https://www.openstreetmap.org/export/embed.html?bbox=-1.6500%2C47.1700%2C-1.4500%2C47.2800&layer=mapnik&marker=47.2184%2C-1.5536"
+      allowfullscreen
+      loading="lazy"
+      title="Carte de Nantes — OpenStreetMap">
+    </iframe>
+  </div>
+  <div class="map-credit">
+    © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap contributors</a>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
-     11 · CATALOGUE APIs
-═══════════════════════════════════ -->
+<!-- ══════════════════════════════════════
+     10 — APIS UTILISÉES
+══════════════════════════════════════ -->
 <section class="section" id="apis">
-  <div class="section-label">
-    <span class="sect-num">11</span>
-    <span class="sect-title">APIs & SOURCES DE DONNÉES</span>
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2 class="section-title">APIs utilisées</h2>
   </div>
 
-  <div class="apis-grid" id="apis-grid">
-    <!-- injected by JS -->
+  <div class="transport-list">
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>Open-Meteo</strong> — Météo, qualité de l'air, astronomie
+        <span class="api-url">https://api.open-meteo.com/v1/forecast</span>
+      </div>
+      <span class="api-note">Gratuit · Sans clé</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>JCDecaux Bicloo</strong> — Stations vélos Nantes
+        <span class="api-url">https://api.jcdecaux.com/vls/v1/stations?contract=nantes</span>
+      </div>
+      <span class="api-note">Clé gratuite</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>OpenAgenda</strong> — Événements culturels
+        <span class="api-url">https://api.openagenda.com/v2/agendas/{id}/events</span>
+      </div>
+      <span class="api-note">Clé gratuite</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>API Géo Gouv</strong> — Données INSEE
+        <span class="api-url">https://geo.api.gouv.fr/communes/44109</span>
+      </div>
+      <span class="api-note">Gratuit · Sans clé</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-live">LIVE</span>
+      <div class="api-name">
+        <strong>Wikipedia REST API</strong> — Résumé encyclopédique
+        <span class="api-url">https://fr.wikipedia.org/api/rest_v1/page/summary/Nantes</span>
+      </div>
+      <span class="api-note">Gratuit · Sans clé</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-static">STATIQUE</span>
+      <div class="api-name">
+        <strong>OpenStreetMap</strong> — Fond de carte
+        <span class="api-url">https://www.openstreetmap.org</span>
+      </div>
+      <span class="api-note">CC-BY-SA</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-key">CLÉ</span>
+      <div class="api-name">
+        <strong>TAN Temps Réel (SIRI)</strong> — Passages aux arrêts
+        <span class="api-url">https://open.tan.fr/ewp/arrets.json · GTFS disponible</span>
+      </div>
+      <span class="api-note">API gratuite</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-key">CLÉ</span>
+      <div class="api-name">
+        <strong>Data Nantes Métropole</strong> — Open data parkings, équipements
+        <span class="api-url">https://data.nantesmetropole.fr/api/explore/v2.1</span>
+      </div>
+      <span class="api-note">CKAN Open API</span>
+    </div>
+    <div class="api-item">
+      <span class="tag tag-key">CLÉ</span>
+      <div class="api-name">
+        <strong>ATMO Pays de la Loire</strong> — Capteurs pollution
+        <span class="api-url">https://data-atmo-paysdelaloire.opendatasoft.com</span>
+      </div>
+      <span class="api-note">Open data</span>
+    </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════
+<!-- ══════════════════════════════════════
      FOOTER
-═══════════════════════════════════ -->
+══════════════════════════════════════ -->
 <footer class="footer">
-  <div class="footer-brand-block">
-    <div class="footer-big-n">N</div>
-    <div class="footer-brand-text">
-      <div class="footer-city">NANTES</div>
-      <div class="footer-tagline">Tableau de bord open data · Loire-Atlantique · 44000</div>
+  <div>
+    <div class="footer-brand">Nantes</div>
+    <div class="footer-tagline">
+      Tableau de bord open data.<br>
+      Données publiques · Temps réel.<br>
+      Loire-Atlantique · France · 44000
     </div>
   </div>
-  <div class="footer-links-block">
-    <div class="footer-col">
-      <h4>Open Data</h4>
-      <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>
-      <a href="https://open.tan.fr" target="_blank">open.tan.fr</a>
-      <a href="https://geo.api.gouv.fr" target="_blank">geo.api.gouv.fr</a>
-      <a href="https://open-meteo.com" target="_blank">open-meteo.com</a>
-    </div>
-    <div class="footer-col">
-      <h4>Ville</h4>
-      <a href="https://www.nantes.fr" target="_blank">nantes.fr</a>
-      <a href="https://metropole.nantes.fr" target="_blank">Nantes Métropole</a>
-      <a href="https://www.tan.fr" target="_blank">Réseau TAN Naolib</a>
-      <a href="https://www.bicloo.nantesmetropole.fr" target="_blank">Bicloo</a>
-    </div>
-    <div class="footer-col">
-      <h4>APIs</h4>
-      <a href="https://developer.jcdecaux.com" target="_blank">JCDecaux API</a>
-      <a href="https://openagenda.com" target="_blank">OpenAgenda</a>
-      <a href="https://fr.wikipedia.org/api/rest_v1/" target="_blank">Wikipedia REST</a>
-      <a href="https://api.open-meteo.com" target="_blank">Open-Meteo</a>
-    </div>
+
+  <div class="footer-col">
+    <h4>Données ouvertes</h4>
+    <a href="https://data.nantesmetropole.fr" target="_blank">data.nantesmetropole.fr</a>
+    <a href="https://open.tan.fr" target="_blank">open.tan.fr</a>
+    <a href="https://data-atmo-paysdelaloire.opendatasoft.com" target="_blank">ATMO Pays de la Loire</a>
+    <a href="https://geo.api.gouv.fr" target="_blank">geo.api.gouv.fr</a>
+  </div>
+
+  <div class="footer-col">
+    <h4>APIs utilisées</h4>
+    <a href="https://open-meteo.com" target="_blank">Open-Meteo</a>
+    <a href="https://developer.jcdecaux.com" target="_blank">JCDecaux API</a>
+    <a href="https://openagenda.com" target="_blank">OpenAgenda</a>
+    <a href="https://fr.wikipedia.org/api/rest_v1/" target="_blank">Wikipedia REST API</a>
+  </div>
+
+  <div class="footer-col">
+    <h4>Nantes · 44000</h4>
+    <a href="https://www.nantes.fr" target="_blank">nantes.fr</a>
+    <a href="https://metropole.nantes.fr" target="_blank">Nantes Métropole</a>
+    <a href="https://www.tan.fr" target="_blank">Réseau TAN</a>
+    <a href="https://www.bicloo.nantesmetropole.fr" target="_blank">Bicloo</a>
   </div>
 </footer>
+
 <div class="footer-bottom">
-  <span>Données publiques · Open Source · Temps réel</span>
-  <span><span class="live-pulse"></span> Actualisation automatique toutes les 5 minutes</span>
+  <span>Tableau de bord · Données publiques · Open Source</span>
+  <span><span class="live-dot"></span> Données actualisées en temps réel</span>
 </div>
 
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
+<script src="js/theme.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
